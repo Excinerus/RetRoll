@@ -1,0 +1,46 @@
+## Interface: 11200
+## Title: retroll 
+## Notes: Effort Points/Gear Points Loot System 
+## Author: Roadblock
+## X-Website: https://github.com/wierdthing/retroll-ret
+## X-Category: Guild
+## X-Credits: shooty, Qcat(zhCN)
+## Version: 3.85
+## X-Alpha: 
+## OptionalDeps: Ace2
+## SavedVariables: retep_saychannel, retep_groupbyclass, retep_groupbyarmor, retep_groupbyrole, retep_raidonly, retep_dbver, retep_debug, retep_fubar
+## SavedVariablesPerCharacter: retep_main, retep_log, retep_looted, retep_decay, retep_minep, retep_reservechannel, retep_progress, retep_discount, retep_altspool, retep_altpercent, retep_pugEPGP,retep_showRollWindow
+
+Libs\AceLibrary\AceLibrary.lua
+Libs\AceOO-2.0\AceOO-2.0.lua
+Libs\AceEvent-2.0\AceEvent-2.0.lua
+Libs\AceAddon-2.0\AceAddon-2.0.lua
+Libs\AceHook-2.1\AceHook-2.1.lua
+Libs\AceConsole-2.0\AceConsole-2.0.lua
+Libs\AceModuleCore-2.0\AceModuleCore-2.0.lua
+Libs\AceDB-2.0\AceDB-2.0.lua
+Libs\AceDebug-2.0\AceDebug-2.0.lua
+Libs\AceLocale-2.2\AceLocale-2.2.lua
+
+Libs\Deformat-2.0\Deformat-2.0.lua
+Libs\Babble-Class-2.2\Babble-Class-2.2.lua
+Libs\Babble-Zone-2.2\Babble-Zone-2.2.lua
+Libs\Crayon-2.0\Crayon-2.0.lua
+Libs\Compost-2.0\Compost-2.0.lua
+Libs\Dewdrop-2.0\Dewdrop-2.0.lua
+Libs\Tablet-2.0\Tablet-2.0.lua
+Libs\Gratuity-2.0\Gratuity-2.0.lua
+Libs\FuBarPlugin-2.0\FuBarPlugin-2.0.lua
+
+localization.lua
+retroll.lua
+retroll.xml
+roll.lua
+migrations.lua
+prices.lua
+standings.lua
+bids.lua
+loot.lua
+reserves.lua
+alts.lua
+logs.lua
