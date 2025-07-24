@@ -12,11 +12,11 @@ retep.VARS = {
   basegp = 0,
   dpRollCap = 50,
   minep = 0,
-  baseaward_ep = 100,
+  baseaward_ep = 10,
   decay = 0.9,
   max = 1000,
   timeout = 60,
-  minlevel = 1,
+  minlevel = 60,
   maxloglines = 500,
   prefix = "RRG_",
  
