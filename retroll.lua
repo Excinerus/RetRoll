@@ -16,7 +16,7 @@ retep.VARS = {
   decay = 0.9,
   max = 1000,
   timeout = 60,
-  minlevel = 60,
+  minlevel = 1,
   maxloglines = 500,
   prefix = "RRG_",
  
@@ -950,7 +950,7 @@ end
 --    chatframe:AddMessage(string.format(out,msg),NORMAL_FONT_COLOR.r,NORMAL_FONT_COLOR.g,NORMAL_FONT_COLOR.b)
 --  end
 --end
-
+ 
 function retep:simpleSay(msg)
   SendChatMessage(string.format("retroll: %s",msg), retep_saychannel)
 end
@@ -1080,8 +1080,8 @@ function retep:addonComms(prefix,message,channel,sender)
           local sender_rank = string.format("%s(%s)",C:Colorize(BC:GetHexColor(class),sender),rank)
           settings_notice = settings_notice..string.format(L[" settings accepted from %s"],sender_rank)
           self:defaultPrint(settings_notice)
-          self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"],retep_progress)
-          self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"],retep_discount*100)
+         -- self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"],retep_progress)
+         -- self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"],retep_discount*100)
           self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"],retep_minep)
         end
       end
