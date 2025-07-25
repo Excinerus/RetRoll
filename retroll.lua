@@ -450,7 +450,7 @@ function retep:OnInitialize() -- ADDON_LOADED (1) unless LoD
   if retep_minep == nil then retep_minep = retep.VARS.minep end
  -- if retep_progress == nil then retep_progress = "T1" end
  -- if retep_discount == nil then retep_discount = 0.25 end
-  if retep_altspool == nil then retep_altspool = false end
+  if retep_altspool == nil then retep_altspool = true end
   if retep_altpercent == nil then retep_altpercent = 1.0 end
   if retep_log == nil then retep_log = {} end
   if retep_looted == nil then retep_looted = {} end
