@@ -34,7 +34,7 @@ retep.VARS = {
 }
 
 RetEPMSG = {
-	init = true,
+	delayedinit = false,
 	dbg= true,
 	prefix = "RR_",
 	RequestHostInfoUpdate = "RequestHostInfoUpdate",
@@ -428,7 +428,7 @@ end
 function retep:OnEnable() -- PLAYER_LOGIN (2)
   --table.insert(retep_debug,{[date("%b/%d %H:%M:%S")]="OnEnable"})
   retep._playerLevel = UnitLevel("player")
-  retep.extratip = (retep.extratip) or CreateFrame("GameTooltip","retroll_tooltip",UIParent,"GameTooltipTemplate")
+  --retep.extratip = (retep.extratip) or CreateFrame("GameTooltip","retroll_tooltip",UIParent,"GameTooltipTemplate")
   retep._versionString = GetAddOnMetadata("retroll","Version")
   retep._websiteString = GetAddOnMetadata("retroll","X-Website")
   
@@ -446,6 +446,10 @@ function retep:OnEnable() -- PLAYER_LOGIN (2)
       if (arg1) then -- member join /leave
         retep:SetRefresh(true)
       end
+    end)
+ 
+  self:RegisterEvent("CHAT_MSG_ADDON",function() 
+        RetEPMSG:OnCHAT_MSG_ADDON( arg1, arg2, arg3, arg4)
     end)
   self:RegisterEvent("RAID_ROSTER_UPDATE",function()
       retep:SetRefresh(true)
@@ -524,11 +528,11 @@ function retep:AceEvent_FullyInitialized() -- SYNTHETIC EVENT, later than PLAYER
   end
 
   -- if pfUI loaded, skin the extra tooltip
-  if not IsAddOnLoaded("pfUI-addonskins") then
-    if (pfUI) and pfUI.api and pfUI.api.CreateBackdrop and pfUI_config and pfUI_config.tooltip and pfUI_config.tooltip.alpha then
-      pfUI.api.CreateBackdrop(retep.extratip,nil,nil,tonumber(pfUI_config.tooltip.alpha))
-    end
-  end
+ --if not IsAddOnLoaded("pfUI-addonskins") then
+ --  if (pfUI) and pfUI.api and pfUI.api.CreateBackdrop and pfUI_config and pfUI_config.tooltip and pfUI_config.tooltip.alpha then
+ --    pfUI.api.CreateBackdrop(retep.extratip,nil,nil,tonumber(pfUI_config.tooltip.alpha))
+ --  end
+ --end
 
   self._hasInitFull = true
 end
@@ -588,7 +592,7 @@ function retep:delayedInit()
     self:RollCommand(true, false, bonus)
   end)
   self:RegisterChatCommand({"/updatepugep"}, function() retep:updateAllPugEP(false) end)
-  self:RegisterEvent("CHAT_MSG_ADDON","addonComms")  
+  --self:RegisterEvent("CHAT_MSG_ADDON","addonComms")  
   -- broadcast our version
   local addonMsg = string.format("VERSION;%s;%d",retep._versionString,major_ver or 0)
   self:addonMessage(addonMsg,"GUILD")
@@ -601,7 +605,7 @@ function retep:delayedInit()
       self:Hook("GuildRosterSetOfficerNote")
     end
   end
-  RetEPMSG.init = true
+  RetEPMSG.delayedinit = true
   self:defaultPrint(string.format(L["v%s Loaded."],retep._versionString))
 end
 
@@ -837,9 +841,7 @@ function retep:refreshPRTablets()
   --if not T:IsAttached("retep_standings") then
   retep_standings:Refresh()
   --end
-  --if not T:IsAttached("retep_bids") then
-  retep_bids:Refresh()
-  --end
+ 
 end
 
 ---------------------
@@ -1028,29 +1030,7 @@ function retep:givename_ep(getname,ep,block) -- awards ep to a single character
   return isPug, getname
 end
 
---function retep:givename_gp(getname,gp) -- assigns gp to a single character
---  if not (admin()) then return end
---  local isPug, playerNameInGuild = self:isPug(getname)
---  local postfix, alt = ""
---  if (retep_altspool) then
---    local main = self:parseAlt(getname)
---    if (main) then
---      alt = getname
---      getname = main
---      postfix = string.format(L[", %s\'s Main."],alt)
---    end
---  end
---  local oldgp = (self:get_gp_v3(getname) or retep.VARS.basegp) 
---  local newgp = gp + oldgp
---  self:update_gp_v3(getname,newgp) 
---  self:debugPrint(string.format(L["Giving %d gp to %s%s."],gp,getname,postfix))
---  local msg = string.format(L["Awarding %d GP to %s%s. (Previous: %d, New: %d)"],gp,getname,postfix,oldgp,newgp)
---  self:adminSay(msg)
---  self:addToLog(msg)
---  local addonMsg = string.format("%s;%s;%s",getname,"GP",gp)
---  self:addonMessage(addonMsg,"GUILD")  
---end
---
+
 function retep:givename_gp(getname,gp) 
  return retep:givename_gp(getname,gp,nil) 
 end
@@ -1103,14 +1083,6 @@ function retep:givename_gp(getname,gp,block) -- awards gp to a single character
   end  
   return isPug, getname
 end
-
-
-
-
-
-
-
-
 
 
 function retep:decay_epgp_v3()
@@ -1188,7 +1160,7 @@ end
 ---------
 -- Menu
 ---------
-retep.hasIcon = "Interface\\PetitionFrame\\GuildCharter-Icon"
+retep.hasIcon = "Interface\\Icons\\INV_Misc_ArmorKit_19"
 retep.title = "retroll"
 retep.defaultMinimapPosition = 180
 retep.defaultPosition = "RIGHT"
@@ -2290,7 +2262,7 @@ end
 function RetEPMSG:OnCHAT_MSG_ADDON( prefix, text, channel, sender)
 		
 	
-	if (not RetEPMSG.init) then return end
+	if ( RetEPMSG.delayedinit) then  retep:addonComms(prefix,text,channel,sender) end
 	 
 		if (channel == "RAID" or channel == "PARTY") then
 		

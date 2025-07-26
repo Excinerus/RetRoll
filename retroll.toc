@@ -33,14 +33,10 @@ Libs\Gratuity-2.0\Gratuity-2.0.lua
 Libs\FuBarPlugin-2.0\FuBarPlugin-2.0.lua
 
 localization.lua
-retroll.lua
-retroll.xml
+retroll.lua 
 roll.lua
-migrations.lua
-prices.lua
-standings.lua
-bids.lua
-loot.lua
+migrations.lua 
+standings.lua 
 reserves.lua
 alts.lua
 logs.lua
