@@ -145,7 +145,7 @@ function retep_standings.import()
   local found
   for line in string.gfind(text,"[^\r\n]+") do
     local name,ep,gp,pr = retep:strsplit(";",line)
-    ep,gp,pr = tonumber(ep),tonumber(gp),tonumber(pr)
+    ep,gp = tonumber(ep),tonumber(gp)--,tonumber(pr)
     if (name) and (ep) and (gp) and (pr) then
       t[name]={ep,gp}
       found = true
