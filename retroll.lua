@@ -764,18 +764,18 @@ function retep:addonComms(prefix,message,channel,sender)
         alts = (alts == "true") and true or false
         altspct = tonumber(altspct)
         local settings_notice
-        if progress and progress ~= retep_progress then
-          retep_progress = progress
-          settings_notice = L["New raid progress"]
-        end
-        if discount and discount ~= retep_discount then
-          retep_discount = discount
-          if (settings_notice) then
-            settings_notice = settings_notice..L[", offspec price %"]
-          else
-            settings_notice = L["New offspec price %"]
-          end
-        end
+        --if progress and progress ~= retep_progress then
+        --  retep_progress = progress
+        --  settings_notice = L["New raid progress"]
+        --end
+        --if discount and discount ~= retep_discount then
+        --  retep_discount = discount
+        --  if (settings_notice) then
+        --    settings_notice = settings_notice..L[", offspec price %"]
+        --  else
+        --    settings_notice = L["New offspec price %"]
+        --  end
+        --end
         if minep and minep ~= retep_minep then
           retep_minep = minep
           settings_notice = L["New Minimum EP"]
@@ -832,7 +832,7 @@ function retep:shareSettings(force)
   local now = GetTime()
   if self._lastSettingsShare == nil or (now - self._lastSettingsShare > 30) or (force) then
     self._lastSettingsShare = now
-    local addonMsg = string.format("SETTINGS;%s:%s:%s:%s:%s:%s;1",retep_progress,retep_discount,retep_decay,retep_minep,tostring(retep_altspool),retep_altpercent)
+    local addonMsg = string.format("SETTINGS;%s:%s:%s:%s:%s:%s;1",0,0,retep_decay,retep_minep,tostring(retep_altspool),retep_altpercent)
     self:addonMessage(addonMsg,"GUILD")
   end
 end
