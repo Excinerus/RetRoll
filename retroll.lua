@@ -35,7 +35,7 @@ retep.VARS = {
 
 RetEPMSG = {
 	delayedinit = false,
-	dbg= true,
+	dbg= false,
 	prefix = "RR_",
 	RequestHostInfoUpdate = "RequestHostInfoUpdate",
 	RequestHostInfoUpdateTS = 0,
