@@ -2149,7 +2149,7 @@ function retep:ParseHostInfo(  sender , text )
 						self:defaultPrint(string.format("Updated EP/GP for %s as %s in guild %s: %d : %d",  TargetMember, PugReg, HostGuildName, ep,gp))
 					else
 						-- announce unregistered
-						self:defaultPrint(string.format("You don't have sanding bank character in %s, contact one of their officers for that", HostGuildName))
+						self:defaultPrint(string.format("You don't have standing bank character in %s, contact one of their officers for that", HostGuildName))
 					end
 				end
 		end
