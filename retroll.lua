@@ -19,7 +19,7 @@ retep.VARS = {
   minlevel = 1,
   maxloglines = 500,
   prefix = "RRG_",
- 
+  inRaid = false,
   reservechan = "Reserves",
   reserveanswer = "^(%+)(%a*)$",
   bop = C:Red("BoP"),
@@ -32,7 +32,7 @@ retep.VARS = {
   HostGuildName = "!",
   HostLeadName = "!" 
 }
- 
+
 RetEPMSG = {
 	init = true,
 	dbg= true,
@@ -198,13 +198,6 @@ retep.cmdtable = function()
   end
 end
 retep.reserves = {}
---retep.bids_main,retep.bids_off,retep.bid_item = {},{},{}
-retep.timer = CreateFrame("Frame")
-retep.timer.cd_text = ""
-retep.timer:Hide()
-retep.timer:SetScript("OnUpdate",function() retep.OnUpdate(this,arg1) end)
-retep.timer:SetScript("OnEvent",function() 
-end)
 retep.alts = {}
 
 function retep:buildMenu()
@@ -257,37 +250,7 @@ function retep:buildMenu()
         return n and n >= 0 and n < retep.VARS.max
       end
     }
-  --  options.args["ep_reserves"] = {
-  --    type = "text",
-  --    name = L["+EPs to Reserves"],
-  --    desc = L["Award EPs to all active Reserves."],
-  --    order = 40,
-  --    get = "suggestedAwardEP",
-  --    set = function(v) retep:award_reserve_ep(tonumber(v)) end,
-  --    usage = "<EP>",
-  --    hidden = function() return not (admin()) end,
-  --    validate = function(v)
-  --      local n = tonumber(v)
-  --      return n and n >= 0 and n < retep.VARS.max
-  --    end    
-  --  }
-  --  options.args["reserves"] = {
-  --    type = "toggle",
-  --    name = L["Enable Reserves"],
-  --    desc = L["Participate in Standby Raiders List.\n|cffff0000Requires Main Character Name.|r"],
-  --    order = 50,
-  --    get = function() return (retep.reservesChannelID ~= nil) and (retep.reservesChannelID ~= 0) end,
-  --    set = function(v) retep:reservesToggle(v) end,
-  --    disabled = function() return (retep_main == nil) end
-  --  }
-  --  options.args["afkcheck_reserves"] = {
-  --    type = "execute",
-  --    name = L["AFK Check Reserves"],
-  --    desc = L["AFK Check Reserves List"],
-  --    order = 60,
-  --    hidden = function() return not (admin()) end,
-  --    func = function() retep:afkcheck_reserves() end
-  --  }
+ 
     options.args["updatePugs"] = {
       type = "execute",
       name = "Update Pug EP",
@@ -566,20 +529,7 @@ function retep:AceEvent_FullyInitialized() -- SYNTHETIC EVENT, later than PLAYER
       pfUI.api.CreateBackdrop(retep.extratip,nil,nil,tonumber(pfUI_config.tooltip.alpha))
     end
   end
-  -- hook GiveMasterLoot to catch loot assign to members too far for chat parsing
- -- self:SecureHook("GiveMasterLoot")
-  -- hook SetItemRef to parse our client bid links
- --  self:Hook("SetItemRef")
-  -- hook tooltip to add our GP values
- -- self:TipHook()
-  -- hook LootFrameItem_OnClick to add our own click handlers for bid calls
- -- self:SecureHook("LootFrameItem_OnClick")
-  -- hook ContainerFrameItemButton_OnClick to add our own click handlers for bid calls
- -- self:Hook("ContainerFrameItemButton_OnClick")
-  -- hook pfUI loot module :(
- --if pfUI ~= nil and pfUI.loot ~= nil and type(pfUI.loot.UpdateLootFrame) == "function" then
- --  self:SecureHook(pfUI.loot, "UpdateLootFrame", "pfUI_UpdateLootFrame")
- --end
+
   self._hasInitFull = true
 end
 
@@ -595,71 +545,6 @@ function retep:OnMenuRequest()
   D:FeedAceOptionsTable(self._options)
 end
 
---function retep:TipHook()
---  self:SecureHook(GameTooltip, "SetHyperlink", function(this, itemstring)
---    retep:AddDataToTooltip(GameTooltip, nil, itemstring)
---  end)
---  self:SecureHook(GameTooltip, "SetBagItem", function(this, bag, slot)
---    local itemLink = GetContainerItemLink(bag, slot)
---    local ml_tip
---    if (itemLink) then
---      local is_master = (retep:lootMaster()) and true or nil
---      local link_found, _, itemColor, itemString, itemName = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])")
---      if (link_found) then
---        local bind = self:itemBinding(itemString) or ""
---        ml_tip = is_master and bind == retep.VARS.boe
---        if (ml_tip) then
---          local frame = GetMouseFocus()
---          if (frame) and (frame.IsFrameType ~= nil) and (frame:IsFrameType("Button"))  then
---            if not (frame._hasExtraClicks) then
---              frame:RegisterForClicks("LeftButtonUp","RightButtonUp","MiddleButtonUp")
---              frame._hasExtraClicks = true              
---            end
---          end
---        end
---      end
---    end
---    retep:AddDataToTooltip(GameTooltip, itemLink, nil, ml_tip)
---  end
---  )
---  self:SecureHook(GameTooltip, "SetLootItem", function(this, slot)
---    local is_master = (retep:lootMaster()) and true or nil
---    if (is_master) then
---      local frame = GetMouseFocus()
---      if (frame) and (frame.IsFrameType ~= nil) and (frame:IsFrameType("Button"))  then
---        if not (frame._hasExtraClicks) then
---          frame:RegisterForClicks("LeftButtonUp","RightButtonUp","MiddleButtonUp")
---          frame._hasExtraClicks = true              
---        end
---      end
---    end
---    retep:AddDataToTooltip(GameTooltip, GetLootSlotLink(slot), nil, is_master)
---  end
---  )
---  self:SecureHook(GameTooltip, "SetLootRollItem", function(this, id)
---    retep:AddDataToTooltip(GameTooltip, GetLootRollItemLink(id))
---  end
---  ) 
---  self:HookScript(GameTooltip, "OnHide", function()
---    if retep.extratip:IsVisible() then retep.extratip:Hide() end
---    self.hooks[GameTooltip]["OnHide"]()
---  end
---  )
---  self:HookScript(ItemRefTooltip, "OnHide", function()
---    if retep.extratip:IsVisible() then retep.extratip:Hide() end
---    self.hooks[ItemRefTooltip]["OnHide"]()
---  end
---  )
---  if (AtlasLootTooltip) then
---    self:SecureHook(AtlasLootTooltip, "SetHyperlink", function(this, itemstring)
---      retep:AddDataToTooltip(AtlasLootTooltip,nil,itemstring)
---    end)
---    self:HookScript(AtlasLootTooltip, "OnHide", function()
---      if retep.extratip:IsVisible() then retep.extratip:Hide() end
---      self.hooks[AtlasLootTooltip]["OnHide"]()
---    end)
---  end
---end
  
 function retep:delayedInit()
   --table.insert(retep_debug,{[date("%b/%d %H:%M:%S")]="delayedInit"})
@@ -724,14 +609,7 @@ end
 function retep:OnUpdate(elapsed)
   retep.timer.count_down = retep.timer.count_down - elapsed
   lastUpdate = lastUpdate + elapsed
-  if retep.timer.count_down <= 0 then
-    running_check = nil
-    retep.timer:Hide()
-    retep.timer.cd_text = L["|cffff0000Finished|r"]
-    retep_reserves:Refresh()
-  else
-    retep.timer.cd_text = string.format(L["|cff00ff00%02d|r|cffffffffsec|r"],retep.timer.count_down)
-  end
+
   if lastUpdate > 0.5 then
     lastUpdate = 0
     retep_reserves:Refresh()
@@ -774,120 +652,6 @@ function retep:GuildRosterSetOfficerNote(index,note,fromAddon)
   end
 end
 
---function retep:SetItemRef(link, name, button)
---  if string.sub(link,1,9) == "shootybid" then
---    local _,_,bid,masterlooter = string.find(link,"shootybid:(%d+):(%w+)")
---    if bid == "1" then
---      bid = "+"
---    elseif bid == "2" then
---      bid = "-"
---    else
---      bid = nil
---    end
---    if not self:inRaid(masterlooter) then
---      masterlooter = nil
---    end
---    if (bid and masterlooter) then
---      SendChatMessage(bid,"WHISPER",nil,masterlooter)
---    end
---    return
---  end
---  self.hooks["SetItemRef"](link, name, button)
---  if (link and name and ItemRefTooltip) then
---    if (strsub(link, 1, 4) == "item") then
---      if (ItemRefTooltip:IsVisible()) then
---        if (not DressUpFrame:IsVisible()) then
---          self:AddDataToTooltip(ItemRefTooltip, link)
---        end
---        ItemRefTooltip.isDisplayDone = nil
---      end
---    end
---  end
---end
-
---function retep:LootFrameItem_OnClick(button,data)
---  if not IsAltKeyDown() then return end
---  if not UnitInRaid("player") then return end
---  if not (self:lootMaster()) then 
---    self:defaultPrint(L["Need MasterLooter to perform Bid Calls!"])
---    UIErrorsFrame:AddMessage(L["Need MasterLooter to perform Bid Calls!"],1,0,0)
---    return 
---  end
---  local slot, quality
---  if data ~= nil then
---    slot,quality = data:GetID(), data.quality
---  else
---    slot = LootFrame.selectedSlot or 0
---    quality = LootFrame.selectedQuality or -1
---    if not (this._hasExtraClicks) then 
---      this:RegisterForClicks("LeftButtonUp","RightButtonUp","MiddleButtonUp")
---      this._hasExtraClicks = true
---    end
---  end
---  if LootSlotIsItem(slot) and quality >= 3 then 
---    local itemLink = GetLootSlotLink(slot)
---    if (itemLink) then
---      if button == "LeftButton" then
---        self:widestAudience(string.format(L["Whisper %s a + for %s (mainspec)"],retep._playerName,itemLink))
---      elseif button == "RightButton" then
---        self:widestAudience(string.format(L["Whisper %s a - for %s (offspec)"],retep._playerName,itemLink))
---      elseif button == "MiddleButton" then
---        self:widestAudience(string.format(L["Whisper %s a + or - for %s (mainspec or offspec)"],retep._playerName,itemLink))
---      end
---    end
---  end
---end
-
---function retep:ContainerFrameItemButton_OnClick(button,ignoreModifiers)
---  if not IsAltKeyDown() then 
---    return self.hooks["ContainerFrameItemButton_OnClick"](button,ignoreModifiers) 
---  end
---  if not UnitInRaid("player") then 
---    return self.hooks["ContainerFrameItemButton_OnClick"](button,ignoreModifiers) 
---  end
---  if not (self:lootMaster()) then
---    self:defaultPrint(L["Need MasterLooter to perform Bid Calls!"])
---    UIErrorsFrame:AddMessage(L["Need MasterLooter to perform Bid Calls!"],1,0,0)
---    return self.hooks["ContainerFrameItemButton_OnClick"](button,ignoreModifiers) 
---  end
---  if not (this._hasExtraClicks) then
---    this:RegisterForClicks("LeftButtonUp","RightButtonUp","MiddleButtonUp")
---    this._hasExtraClicks = true
---  end
---  local bag,slot = this:GetParent():GetID(), this:GetID()
---  local itemLink = GetContainerItemLink(bag, slot)
---  if (itemLink) then
---    local link_found, _, itemColor, itemString, itemName = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])")
---    if (link_found) then
---      local bind = self:itemBinding(itemString) or ""
---      if (bind == self.VARS.boe) then
---        if button == "LeftButton" then
---          self:widestAudience(string.format(L["Whisper %s a + for %s (mainspec)"],retep._playerName,itemLink))
---          return
---        elseif button == "RightButton" then
---          self:widestAudience(string.format(L["Whisper %s a - for %s (offspec)"],retep._playerName,itemLink))
---          return
---        elseif button == "MiddleButton" then
---          self:widestAudience(string.format(L["Whisper %s a + or - for %s (mainspec or offspec)"],retep._playerName,itemLink))
---          return
---        end    
---      end      
---    end
---  end
---  return self.hooks["ContainerFrameItemButton_OnClick"](button,ignoreModifiers) 
---end
-
---function retep:pfUI_UpdateLootFrame()
---  for slotid, pflootitem in pairs(pfUI.loot.slots) do
---    if not self:IsHooked(pflootitem,"OnClick") then
---      pflootitem:RegisterForClicks("LeftButtonUp","RightButtonUp","MiddleButtonUp")
---      self:HookScript(pflootitem,"OnClick",function()
---          self:LootFrameItem_OnClick(arg1,this)
---          self.hooks[this]["OnClick"](this,arg1)
---        end)
---    end
---  end
---end
 
 -------------------
 -- Communication
@@ -917,40 +681,7 @@ function retep:defaultPrint(msg)
   DEFAULT_CHAT_FRAME:AddMessage(string.format(out,msg))
 end
 
---function retep:bidPrint(link,masterlooter,need,greed,bid)
---  local mslink = string.gsub(bidlink["ms"],"$ML",masterlooter)
---  local oslink = string.gsub(bidlink["os"],"$ML",masterlooter)
---  local msg = string.format(L["Click $MS or $OS for %s"],link)
---  if (need and greed) then
---    msg = string.gsub(msg,"$MS",mslink)
---    msg = string.gsub(msg,"$OS",oslink)
---  elseif (need) then
---    msg = string.gsub(msg,"$MS",mslink)
---    msg = string.gsub(msg,L["or $OS "],"")
---  elseif (greed) then
---    msg = string.gsub(msg,"$OS",oslink)
---    msg = string.gsub(msg,L["$MS or "],"")
---  elseif (bid) then
---    msg = string.gsub(msg,"$MS",mslink)
---    msg = string.gsub(msg,"$OS",oslink)  
---  end
---  local _, count = string.gsub(msg,"%$","%$")
---  if (count > 0) then return end
---  local chatframe
---  if (SELECTED_CHAT_FRAME) then
---    chatframe = SELECTED_CHAT_FRAME
---  else
---    if not DEFAULT_CHAT_FRAME:IsVisible() then
---      FCF_SelectDockFrame(DEFAULT_CHAT_FRAME)
---    end
---    chatframe = DEFAULT_CHAT_FRAME
---  end
---  if (chatframe) then
---    chatframe:AddMessage(" ")
---    chatframe:AddMessage(string.format(out,msg),NORMAL_FONT_COLOR.r,NORMAL_FONT_COLOR.g,NORMAL_FONT_COLOR.b)
---  end
---end
- 
+
 function retep:simpleSay(msg)
   SendChatMessage(string.format("retroll: %s",msg), retep_saychannel)
 end
@@ -1766,52 +1497,6 @@ function retep:strsplitT(delimiter, subject)
  return tbl
 end
 
-
---function retep:processLootDupe(player,itemName,source)
---  local now = GetTime()
---  local player_name = player == YOU and self._playerName or player
---  local player_item = string.format("%s%s",player_name,itemName)
---  if ((self._lastPlayerItem) and self._lastPlayerItem == player_item)
---  and ((self._lastPlayerItemTime) and (now - self._lastPlayerItemTime) < 3)
---  and ((self._lastPlayerItemSource) and self._lastPlayerItemSource ~= source) then
---    return true, player_item, now
---  end
---  return false, player_item, now
---end
---
---function retep:processLoot(player,itemLink,source)
---  local link_found, _, itemColor, itemString, itemName = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])")  
---  if link_found then
---    local dupe, player_item, now = self:processLootDupe(player,itemName,source)
---    if dupe then
---      return
---    end
---    local bind = self:itemBinding(itemString)
---    if not (bind) then return end
---    local price = retep_prices:GetPrice(itemString,retep_progress)
---    if (not (price)) or (price == 0) then
---      return
---    end
---    local class,_
---    if player == YOU then player = self._playerName end
---    if player == self._playerName then 
---      class = UnitClass("player") -- localized
---    else
---      _, class = self:verifyGuildMember(player,true) -- localized
---    end
---    if not (class) then return end
---    self._lastPlayerItem, self._lastPlayerItemTime, self._lastPlayerItemSource = player_item, now, source
---    local player_color = C:Colorize(BC:GetHexColor(class),player)
---    local off_price = math.floor(price*retep_discount)
---    local quality = hexColorQuality[itemColor] or -1
---    local timestamp = date("%b/%d %H:%M:%S")
---    local data = {[self.loot_index.time]=timestamp,[self.loot_index.player]=player,[self.loot_index.player_c]=player_color,[self.loot_index.item]=itemLink,[self.loot_index.bind]=bind,[self.loot_index.price]=price,[self.loot_index.off_price]=off_price}
---    local dialog = StaticPopup_Show("RET_EP_AUTO_GEARPOINTS",data[self.loot_index.player_c],data[self.loot_index.item],data)
---    if (dialog) then
---      dialog.data = data
---    end
---  end
---end
  function retep:verifyGuildMember(name,silent)
 	retep:verifyGuildMember(name,silent,false)
  end
@@ -2096,78 +1781,7 @@ StaticPopupDialogs["RET_GP_CONFIRM_RESET"] = {
   hideOnEscape = 1
 }
 
-local retep_auto_gp_menu = {
-  --{text = "Choose an Action", isTitle = true},
-  {text = L["Add MainSpec GP"], func = function()
-    local dialog = StaticPopup_FindVisible("RET_EP_AUTO_GEARPOINTS")
-    if (dialog) then
-      local data = dialog.data
-      local player, price = data[retep.loot_index.player], data[retep.loot_index.price]
-      retep:givename_gp((player==YOU and retep._playerName or player),price)
-      retep:refreshPRTablets()
-      data[retep.loot_index.action] = retep.VARS.msgp
-      local update = data[retep.loot_index.update] ~= nil
-      retep:addOrUpdateLoot(data,update)
-      StaticPopup_Hide("RET_EP_AUTO_GEARPOINTS")
-      retep_loot:Refresh()
-    end
-  end},
-  {text = L["Add OffSpec GP"], func = function()
-    local dialog = StaticPopup_FindVisible("RET_EP_AUTO_GEARPOINTS")
-    if (dialog) then
-      local data = dialog.data
-      local player, off_price = data[retep.loot_index.player], data[retep.loot_index.off_price]
-      retep:givename_gp((player==YOU and retep._playerName or player),off_price)
-      retep:refreshPRTablets()
-      data[retep.loot_index.action] = retep.VARS.osgp
-      local update = data[retep.loot_index.update] ~= nil
-      retep:addOrUpdateLoot(data,update)
-      StaticPopup_Hide("RET_EP_AUTO_GEARPOINTS")
-      retep_loot:Refresh()
-    end
-  end},
-  {text = L["Bank or D/E"], func = function()
-    local dialog = StaticPopup_FindVisible("RET_EP_AUTO_GEARPOINTS")
-    if (dialog) then
-      local data = dialog.data
-      data[retep.loot_index.action] = retep.VARS.bankde
-      local update = data[retep.loot_index.update] ~= nil
-      retep:addOrUpdateLoot(data,update)
-      StaticPopup_Hide("RET_EP_AUTO_GEARPOINTS")
-      retep_loot:Refresh()
-    end
-  end}
-}
-StaticPopupDialogs["RET_EP_AUTO_GEARPOINTS"] = {
-  text = L["%s looted %s. What do you want to do?"],
-  button1 = L["GP Actions"],
-  button2 = L["Remind me Later"],
-  OnAccept = function()
-    retep:EasyMenu(retep_auto_gp_menu, retep._menuFrame, this, 0, 0, "MENU", 1)
-    return true
-  end,
-  OnCancel = function(data,reason)
-    if reason == "override" or reason == "clicked" then
-      data[retep.loot_index.action] = retep.VARS.reminder
-      local update = data[retep.loot_index.update] ~= nil
-      retep:addOrUpdateLoot(data,update)
-      retep_loot:Refresh()
-      return
-    elseif reason == "timeout" then
-      return
-    end
-  end,
-  OnShow = function()
-    retep._menuFrame = retep._menuFrame or CreateFrame("Frame", "retep_auto_gp_menuframe", UIParent, "UIDropDownMenuTemplate")
-  end,
-  OnHide = function()
-    CloseDropDownMenus()
-  end,
-  timeout = 0,
-  exclusive = 1,
-  whileDead = 1,
-  hideOnEscape = 1
-}
+
 function retep:EasyMenu_Initialize(level, menuList)
   for i, info in ipairs(menuList) do
     if (info.text) then
@@ -2189,8 +1803,9 @@ function retep:RollCommand(isSRRoll,isDSRRoll,bonus)
   local ep = 0 
   local gp = 0
   local desc = ""  
+  local hostG= retep:GetGuildName()
 	if (IsPugInHostedRaid()) then
-		
+		hostG = retep.VARS.HostGuildName
 		local key = retep:GetGuildKey(retep.VARS.HostGuildName)
 		if retep_pugCache[key] and retep_pugCache[key][playerName] then
 		-- Player is a Pug, use stored EP
@@ -2246,7 +1861,7 @@ function retep:RollCommand(isSRRoll,isDSRRoll,bonus)
   RandomRoll(minRoll, maxRoll)
   
   -- Prepare the announcement message
-  local bonusText = " as "..desc.." of "..retep.VARS.HostGuildName
+  local bonusText = " as "..desc.." of "..hostG
   local message = string.format("I rolled %d - %d with %d EP +%d GP (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp,  bonusText)
 
   if(isSRRoll) then
@@ -2296,28 +1911,6 @@ function retep:isBank(name)
   end
   return false
 end
---function retep:sendPugEpUpdate(pugName, ep)
---  SendChatMessage(string.format("Pug %s has %d EP", pugName, ep), "CHANNEL", nil, GetChannelName("RetPugs"))
---end
---function retep:parsePugEpUpdate(message, channelName)
---  local _, _, pugName, ep = string.find(message, "Pug (%S+) has (%d+) EP")
---  local playerName = UnitName("player")
---  if pugName == playerName then
---    if pugName and ep then
---      local _, _, guildName = string.find(channelName, "^(.+)Pugs$")
---      if guildName then
---        if not retep_pugEP[guildName] then
---          retep_pugEP[guildName] = {}
---        end
---        retep_pugEP[guildName][pugName] = tonumber(ep)
---    
---        self:defaultPrint(string.format("Updated EP for %s in guild %s: %d", pugName, guildName, tonumber(ep)))
---        end
---      else
---        self:defaultPrint("Could not parse guild name from channel: " .. channelName)
---      end
---  end
---end
 
 function retep:CheckPugEP()
   local playerName = UnitName("player")
@@ -2402,6 +1995,10 @@ function retep:UpdateHostInfo()
 	local playerName = UnitName("player")
 	local isInGuild = (guildName) and guildName ~= ""
 	if (GetNumRaidMembers() > 0 ) then -- we entered a raid or raid updated
+
+        if not inRaid then 
+            inRaid = true
+        end
 		local _ ,raidlead = retep:GetRaidLeader()
 		if (retep.VARS.HostLeadName ~= raidlead ) then --raid leadership changed or new raid
 			
@@ -2438,18 +2035,14 @@ function retep:UpdateHostInfo()
 		end
   
 	else -- we left raid
- 
+    if inRaid then
 		RetEPMSG:DBGMSG("Leaving Raid")
+        inRaid = false
+    end
 		retep.VARS.HostGuildName = "!"
 		retep.VARS.HostLeadName ="!"
 	end 
-	--local HostGuild = retep.VARS.HostGuildName
-	--if (HostGuild ~= "!" and HostGuild ~= "!!" and HostGuild ~= oldguild and  (not isInGuild or HostGuild ~= isInGuild) )then
-	--	retep:JoinHostGuildChannel(HostGuild)
-	--end
-	--if (oldguild ~= "!" and HostGuild ~= "!!" and HostGuild ~= oldguild and  (not isInGuild or HostGuild ~= isInGuild)) then
-	--	retep:LeaveHostGuildChannel(oldguild)
-	--end
+
  
 end
 
@@ -2506,7 +2099,7 @@ local HostInfoRequestsSinceLastDispatch = 0
 function retep:SendHostInfoUpdate( member , epgp)
 
 	local GuildName = retep:GetGuildName()
-	if GuildName == "" then DEFAULT_CHAT_FRAME:AddMessage("SendHostInfoUpdate : not in guild") return end
+	if GuildName == nil or GuildName == "" then DEFAULT_CHAT_FRAME:AddMessage("SendHostInfoUpdate : not in guild") return end
 	 
 	-- is raid a guild raid
 	local GuildRules = true
@@ -2624,8 +2217,7 @@ function retep:parsePugEpUpdatePacket(message)
 
 	
  local playerName = UnitName("player") 
- local _, _, guildName , packet = string.find(message,"(%S+){([^}]+)}")
-	
+ local _, _, guildName , packet = string.find(message,"([^{]+){([^}]+)}")
   local segs = retep:strsplitT(',', packet)
   
   for i, seg in pairs(segs) do
@@ -2637,11 +2229,14 @@ function retep:parsePugEpUpdatePacket(message)
 		
       if guildName then
 		local key = retep:GetGuildKey(guildName)
-        if not retep_pugCache[key] then
+        if retep_pugCache == nil then 
+            retep_pugCache = {}
+        end
+        if  retep_pugCache[key] == nil then
           retep_pugCache[key] = {}
         end
         retep_pugCache[key][playerName] = {ep,gp}
- 
+
         self:defaultPrint(string.format("Updated EP/GP for %s in guild %s as %s: %d : %d", playerName, guildName,inGuildName, ep,gp))
         end
       else
