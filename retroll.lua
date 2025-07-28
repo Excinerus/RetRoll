@@ -579,7 +579,7 @@ function retep:delayedInit()
   -- init options and comms
   self._options = self:buildMenu()
   self:RegisterChatCommand({"/shooty","/retep","/retroll","/ret"},self.cmdtable())
-  function calculateBonus(input)
+  function retep:calculateBonus(input)
     local number = tonumber(input)
     if number and number >= 2 and number <= 15 then
         return number * 20
@@ -588,7 +588,7 @@ function retep:delayedInit()
   end
   
   self:RegisterChatCommand({"/retcsr"}, function(input)
-    local bonus = calculateBonus(input)
+    local bonus = retep:calculateBonus(input)
     self:RollCommand(true, false, bonus)
   end)
   self:RegisterChatCommand({"/updatepugep"}, function() retep:updateAllPugEP(false) end)

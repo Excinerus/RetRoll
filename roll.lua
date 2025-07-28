@@ -32,7 +32,7 @@ local function ExecuteCommand(command)
                 local editBox = getglobal(this:GetParent():GetName().."EditBox")
                 local number = tonumber(editBox:GetText())
                 if number then
-                    local bonus = calculateBonus(number)
+                    local bonus = retep:calculateBonus(number)
                     retep:RollCommand(true, false, bonus)
                 else
                     print("Invalid number entered.")
@@ -52,7 +52,7 @@ local function ExecuteCommand(command)
                 local editBox = getglobal(this:GetParent():GetName().."EditBox")
                 local number = tonumber(editBox:GetText())
                 if number then
-                    local bonus = calculateBonus(number)
+                    local bonus = retep:calculateBonus(number)
                     retep:RollCommand(true, false, bonus)
                 else
                     print("Invalid number entered.")
