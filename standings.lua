@@ -116,7 +116,7 @@ function retep_standings:Export()
     local ep = (retep:get_ep_v3(name,officernote) or 0) 
     local gp = (retep:get_gp_v3(name,officernote) or retep.VARS.basegp) 
     if ep > 0 then
-      table.insert(t,{name,ep,gp,ep/gp})
+      table.insert(t,{name,ep,gp,ep+math.min(50,gp)})
     end
   end 
   table.sort(t, function(a,b)
@@ -125,7 +125,7 @@ function retep_standings:Export()
   shooty_export:Show()
   local txt = "Name;EP;GP;PR\n"
   for i,val in ipairs(t) do
-    txt = string.format("%s%s;%d;%d;%.4f\n",txt,val[1],val[2],val[3],val[4])
+    txt = string.format("%s%s;%d;%d;%d\n",txt,val[1],val[2],val[3],val[4])
   end
   shooty_export.AddSelectText(txt)
 end
