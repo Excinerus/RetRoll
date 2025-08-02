@@ -744,8 +744,10 @@ function retep:addonComms(prefix,message,channel,sender)
       msg = string.format(L["%s%% decay to EP and GP."],amount)
     elseif who == "RAID" and what == "AWARD" then
       msg = string.format(L["%d EP awarded to Raid."],amount)
+    elseif who == "RAID" and what == "AWARDGP" then
+      msg = string.format(L["%d EP awarded to Raid."],amount)
     elseif who == "RESERVES" and what == "AWARD" then
-      msg = string.format(L["%d EP awarded to Reserves."],amount)
+      msg = string.format(L["%d GP awarded to Reserves."],amount)
     elseif who == "VERSION" then
       local out_of_date, version_type = self:parseVersion(self._versionString,what)
       if (out_of_date) and self._newVersionNotification == nil then
@@ -966,7 +968,7 @@ function retep:award_raid_gp(gp) -- awards gp to raid members in zone
     end
     self:simpleSay(string.format(L["Giving %d gp to all raidmembers"],gp))
     self:addToLog(string.format(L["Giving %d gp to all raidmembers"],gp))    
-    local addonMsg = string.format("RAID;AWARD;%s",gp)
+    local addonMsg = string.format("RAID;AWARDGP;%s",gp)
     self:addonMessage(addonMsg,"RAID")
     self:refreshPRTablets() 
   else UIErrorsFrame:AddMessage(L["You aren't in a raid dummy"],1,0,0)end
