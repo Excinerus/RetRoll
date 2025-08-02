@@ -1147,8 +1147,8 @@ function retep:my_epgp_announce(use_main)
   else
     ep,gp = (self:get_ep_v3(self._playerName) or 0), (self:get_gp_v3(self._playerName) or retep.VARS.basegp)
   end
- local pr = ep + math.min( retep.VARS.dpRollCap , gp)
-  local msg = string.format(L["You now have: %d EP %d GP + (%d)"], ep,gp,pr)
+  local baseRoll = retep:GetBaseRollValue(ep,gp)
+  local msg = string.format(L["You now have: %d EP %d GP + (%d)"], ep,gp,baseRoll)
   self:defaultPrint(msg)
 end
 
@@ -1769,6 +1769,15 @@ function retep:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode, level)
   UIDropDownMenu_Initialize(menuFrame, function() retep:EasyMenu_Initialize(level, menuList) end, displayMode, level)
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
+function retep:GetRollingGP(gp)
+
+    return math.max(-1 * retep.VARS.dpRollCap , math.min(retep.VARS.dpRollCap,gp) )
+end
+function retep:GetBaseRollValue(ep,gp)
+
+    return  ep + retep:GetRollingGP(gp)
+
+end
 
 function retep:RollCommand(isSRRoll,isDSRRoll,bonus)
   local playerName = UnitName("player")
@@ -1814,24 +1823,24 @@ function retep:RollCommand(isSRRoll,isDSRRoll,bonus)
 	end
   
   -- Calculate the roll range based on whether it's an SR roll or not
-  local cappedGP =    math.min(retep.VARS.dpRollCap,gp)
   local minRoll, maxRoll
+  local baseRoll = retep:GetBaseRollValue(ep,gp)
   if isSRRoll then
-    minRoll = 101 + ep + cappedGP
-    maxRoll = 200 + ep  + cappedGP
+    minRoll = 101 + baseRoll
+    maxRoll = 200 + baseRoll
     if isDSRRoll then
-      minRoll = 101 + ep + 20  + cappedGP
-      maxRoll = 200 + ep + 20 + cappedGP
+      minRoll = 101 + 20 +baseRoll
+      maxRoll = 200 + 20 +baseRoll
     end
   else
-    minRoll = 1 + ep + cappedGP
-    maxRoll = 100 + ep + cappedGP
+    minRoll = 1   + baseRoll
+    maxRoll = 100 + baseRoll
   end
   minRoll = minRoll + bonus
   maxRoll = maxRoll + bonus
 
   RandomRoll(minRoll, maxRoll)
-  
+  local cappedGP =  retep:GetRollingGP(gp)
   -- Prepare the announcement message
   local bonusText = " as "..desc.." of "..hostG
   local message = string.format("I rolled %d - %d with %d EP +%d GP (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp,  bonusText)
