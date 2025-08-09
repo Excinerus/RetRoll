@@ -4,12 +4,12 @@ RetRoll_showRollWindow = true
 
 -- Function to execute commands
 local function ExecuteCommand(command)
-    if command == "roll" then
-        RandomRoll(1, 100)
-    elseif command == "roll 99" then
-        RandomRoll(1, 99)
-	elseif command == "roll 101" then
+    if command == "roll 101" then
         RandomRoll(1, 101)
+    elseif command == "roll 100" then
+        RandomRoll(1, 100)
+	elseif command == "roll 99" then
+        RandomRoll(1, 99)
     elseif command == "roll 50" then
         RandomRoll(1, 50)
     elseif command == "ret ms" then
@@ -72,8 +72,13 @@ local function ExecuteCommand(command)
             hideOnEscape = 1,
         }
         StaticPopup_Show("RET_CSR_INPUT")
-    elseif command == "shooty show" then
+    elseif command == "ret show" then
         RetRoll_standings:Toggle()
+    elseif command == "noice" then
+        local noices ={ {"nice","SAY"},{"noice","SAY"},{"Nice !","YELL"},{"NOICE !","YELL"},{"NOIIICE","YELL"},{"NOYCE !","YELL"},{"niiice","SAY"},{"Errhm, noice","SAY"}}
+        local noice = noices[math.random(1,table.getn(noices))]
+        SendChatMessage(noice[1],noice[2])
+        if noice[2] == "YELL" then DoEmote("cheer") end;
     end
 end
 
@@ -143,14 +148,19 @@ local function CreateRollButton(name, parent, command, anchor)
     return buttonFrame
 end
 
+ 
 -- Roll option buttons configuration
 local options = {
     { "MS", "ret ms" },
     { "OS", "ret os" },
     { "SR", "ret sr" },
     { "CSR", "ret csr" },
-    { "Tmog", "roll 50" },  
-    { "Standings", "shooty show" }
+    { "Tmog", "roll 50" },
+    { "Interest", "roll 99" },
+    { "101", "roll 101"},
+    { "100", "roll 100" },  
+    { "69", "noice" },  
+    { "Standings", "ret show" }
 }
 
 -- Create roll buttons dynamically with closer spacing
