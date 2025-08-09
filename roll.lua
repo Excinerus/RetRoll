@@ -12,13 +12,17 @@ local function ExecuteCommand(command)
         RandomRoll(1, 101)
     elseif command == "roll 50" then
         RandomRoll(1, 50)
-    elseif command == "ret roll" then
+    elseif command == "ret ms" then
         if RetRoll and RetRoll.RollCommand then
-            RetRoll:RollCommand(false, false, 0)
+            RetRoll:RollCommand(false, false,false, 0)
+        end
+    elseif command == "ret os" then
+        if RetRoll and RetRoll.RollCommand then
+            RetRoll:RollCommand(false, false,true, 0)
         end
     elseif command == "ret sr" then
         if RetRoll and RetRoll.RollCommand then
-            RetRoll:RollCommand(true, false, 0)
+            RetRoll:RollCommand(true, false,false, 0)
         end
     elseif command == "retcsr" then
         -- Use static popup dialog to input bonus
@@ -33,7 +37,7 @@ local function ExecuteCommand(command)
                 local number = tonumber(editBox:GetText())
                 if number then
                     local bonus = RetRoll:calculateBonus(number)
-                    RetRoll:RollCommand(true, false, bonus)
+                    RetRoll:RollCommand(true, false,false, bonus)
                 else
                     print("Invalid number entered.")
                 end
@@ -53,7 +57,7 @@ local function ExecuteCommand(command)
                 local number = tonumber(editBox:GetText())
                 if number then
                     local bonus = RetRoll:calculateBonus(number)
-                    RetRoll:RollCommand(true, false, bonus)
+                    RetRoll:RollCommand(true, false,false, bonus)
                 else
                     print("Invalid number entered.")
                 end
@@ -78,6 +82,7 @@ local rollFrame = CreateFrame("Frame", "ShootyRollFrame", UIParent)
 rollFrame:SetWidth(80)
 rollFrame:SetHeight(40)
 rollFrame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", RetRoll_RollPos.x, RetRoll_RollPos.y)
+rollFrame:Hide()
 if not RetRoll_showRollWindow then
     rollFrame:Hide()
 end

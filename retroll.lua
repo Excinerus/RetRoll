@@ -11,6 +11,7 @@ local L = AceLibrary("AceLocale-2.2"):new("retroll")
 RetRoll.VARS = {
   baseAE = 0,
   AERollCap = 50,
+  OSPenalty = 50,
   minPE = 0,
   baseawardpoints = 10,
   decay = 0.5,
@@ -85,33 +86,60 @@ local admincmd, membercmd = {type = "group", handler = RetRoll, args = {
       end,
       order = 7,
     },
-    roll = {
+    ms = {
       type = "execute",
-      name = "Roll",
-      desc = "Roll with your MainStanding Points",
+      name = "Roll MainSpec",
+      desc = "Roll MainSpec with your standing",
       func = function() 
-        RetRoll:RollCommand(false,false,0)
+        RetRoll:RollCommand(false,false,false,0)
+      end,
+      order = 8,
+    },
+    os = {
+      type = "execute",
+      name = "Roll Offspec",
+      desc = "Roll Offspec with your standing",
+      func = function() 
+        RetRoll:RollCommand(false,false,true,0)
       end,
       order = 8,
     },
     sr = {
       type = "execute",
       name = "Roll SR",
-      desc = "Roll Soft Reservie with your MainStanding Points",
+      desc = "Roll Soft Reserve with your standing",
       func = function() 
-        RetRoll:RollCommand(true,false,0)
+        RetRoll:RollCommand(true,false,false,0)
       end,
       order = 9,
     },
-    dsr = {
-      type = "execute",
-      name = "Roll Double SR",
-      desc = "Roll Double Soft Reservie with your MainStanding Points",
-      func = function() 
-        RetRoll:RollCommand(true,true,0)
+    csr = {
+      type = "range",
+      name = "Roll Cumulative SR",
+      desc = "Roll Cumulative Soft Reserve with your standing",
+      get = "Roll Cumulative Soft Reserve with your standing",
+      min = 1,
+      max = 10,
+      step = 1,
+      isPercent = false,
+      get = function(input)
+        
+      end,
+      set = function(input) 
+      local bonus = RetRoll:calculateBonus(input)
+      RetRoll:RollCommand(true, false,false, bonus)
       end,
       order = 10,
     },
+  -- dsr = {
+  --   type = "execute",
+  --   name = "Roll Double SR",
+  --   desc = "Roll Double Soft Reserve with your standing",
+  --   func = function() 
+  --     RetRoll:RollCommand(true,true,false,0)
+  --   end,
+  --   order = 11,
+  -- },
     ep = {
       type = "execute",
       name = "Check your pug Standing",
@@ -119,7 +147,7 @@ local admincmd, membercmd = {type = "group", handler = RetRoll, args = {
       func = function() 
         RetRoll:CheckPugStanding()
       end,
-      order = 11,
+      order = 12,
     },
   }},
 {type = "group", handler = RetRoll, args = {
@@ -132,15 +160,15 @@ local admincmd, membercmd = {type = "group", handler = RetRoll, args = {
       end,
       order = 1,
     },
-    progress = {
-      type = "execute",
-      name = L["Progress"],
-      desc = L["Print Progress Multiplier."],
-      func = function()
-        RetRoll:defaultPrint(RetRoll_progress)
-      end,
-      order = 2,
-    },
+    --progress = {
+    --  type = "execute",
+    --  name = L["Progress"],
+    --  desc = L["Print Progress Multiplier."],
+    --  func = function()
+    --    RetRoll:defaultPrint(RetRoll_progress)
+    --  end,
+    --  order = 2,
+    --},
     restart = {
       type = "execute",
       name = L["Restart"],
@@ -151,33 +179,60 @@ local admincmd, membercmd = {type = "group", handler = RetRoll, args = {
       end,
       order = 4,
     },
-    roll = {
+    ms = {
       type = "execute",
-      name = "Roll",
-      desc = "Roll with your MainStanding Points",
+      name = "Roll MainSpec",
+      desc = "Roll with your standing",
       func = function() 
-        RetRoll:RollCommand(false,false,0)
+        RetRoll:RollCommand(false,false,false,0)
       end,
       order = 5,
+    },
+    os = {
+      type = "execute",
+      name = "Roll OffSpec",
+      desc = "Roll OffSpec with your standing",
+      func = function() 
+        RetRoll:RollCommand(false,false,true,0)
+      end,
+      order = 6,
     },
     sr = {
       type = "execute",
       name = "Roll SR",
-      desc = "Roll Soft Reservie with your MainStanding Points",
+      desc = "Roll Soft Reserve with your standing",
       func = function() 
-        RetRoll:RollCommand(true,false,0)
-      end,
-      order = 6,
-    },
-    dsr = {
-      type = "execute",
-      name = "Roll Double SR",
-      desc = "Roll Double Soft Reservie with your MainStanding Points",
-      func = function() 
-        RetRoll:RollCommand(true,true,0)
+        RetRoll:RollCommand(true,false,false,0)
       end,
       order = 7,
     },
+    csr = {
+      type = "range",
+      name = "Roll Cumulative SR",
+      desc = "Roll Cumulative Soft Reserve with your standing",
+      get = "Roll Cumulative Soft Reserve with your standing",
+      min = 1,
+      max = 10,
+      step = 1,
+      isPercent = false,
+      get = function(input)
+      
+      end,
+      set = function(input) 
+      local bonus = RetRoll:calculateBonus(input)
+      RetRoll:RollCommand(true, false,false, bonus)
+      end,
+      order = 8,
+    },
+  -- dsr = {
+  --   type = "execute",
+  --   name = "Roll Double SR",
+  --   desc = "Roll Double Soft Reserve with your standing",
+  --   func = function() 
+  --     RetRoll:RollCommand(true,true,false,0)
+  --   end,
+  --   order = 9,
+  -- },
     ep = {
       type = "execute",
       name = "Check your pug Standing",
@@ -185,7 +240,7 @@ local admincmd, membercmd = {type = "group", handler = RetRoll, args = {
       func = function() 
         RetRoll:CheckPugStanding()
       end,
-      order = 8,
+      order = 10,
     },
   }}
 RetRoll.cmdtable = function() 
@@ -576,7 +631,7 @@ function RetRoll:delayedInit()
  
   -- init options and comms
   self._options = self:buildMenu()
-  self:RegisterChatCommand({"/shooty","/RetRoll","/retroll","/ret"},self.cmdtable())
+  self:RegisterChatCommand({"/RetRoll","/retroll","/ret"},self.cmdtable())
   function RetRoll:calculateBonus(input)
     local number = tonumber(input)
     if number and number >= 2 and number <= 15 then
@@ -587,12 +642,12 @@ function RetRoll:delayedInit()
   
   self:RegisterChatCommand({"/retcsr"}, function(input)
     local bonus = RetRoll:calculateBonus(input)
-    self:RollCommand(true, false, bonus)
-  end)
+    self:RollCommand(true, false,false, bonus)
+  end) 
   self:RegisterChatCommand({"/updatepugs"}, function() RetRoll:updateAllPugStanding(false) end)
   --self:RegisterEvent("CHAT_MSG_ADDON","addonComms")  
   -- broadcast our version
-  local addonMsg = string.format("VERSION;%s;%d",RetRoll._versionString,major_ver or 0)
+  local addonMsg = string.format("RetRollVERSION;%s;%d",RetRoll._versionString,major_ver or 0)
   self:addonMessage(addonMsg,"GUILD")
   if (IsGuildLeader()) then
     self:shareSettings()
@@ -746,7 +801,7 @@ function RetRoll:addonComms(prefix,message,channel,sender)
       msg = string.format(L["%d MainStanding awarded to Raid."],amount)
     elseif who == "RESERVES" and what == "AWARD" then
       msg = string.format(L["%d AuxStanding awarded to Reserves."],amount)
-    elseif who == "VERSION" then
+    elseif who == "RetRollVERSION" then
       local out_of_date, version_type = self:parseVersion(self._versionString,what)
       if (out_of_date) and self._newVersionNotification == nil then
         self._newVersionNotification = true -- only inform once per session
@@ -1779,7 +1834,7 @@ function RetRoll:GetBaseRollValue(ep,gp)
 
 end
 
-function RetRoll:RollCommand(isSRRoll,isDSRRoll,bonus)
+function RetRoll:RollCommand(isSRRoll,isDSRRoll,isOS,bonus)
   local playerName = UnitName("player")
   local ep = 0 
   local gp = 0
@@ -1825,6 +1880,9 @@ function RetRoll:RollCommand(isSRRoll,isDSRRoll,bonus)
   -- Calculate the roll range based on whether it's an SR roll or not
   local minRoll, maxRoll
   local baseRoll = RetRoll:GetBaseRollValue(ep,gp)
+  if isOS then
+    baseRoll= baseRoll - RetRoll.VARS.OSPenalty
+  end
   if isSRRoll then
     minRoll = 101 + baseRoll
     maxRoll = 200 + baseRoll
@@ -1843,19 +1901,22 @@ function RetRoll:RollCommand(isSRRoll,isDSRRoll,bonus)
   local cappedGP =  RetRoll:GetRollingGP(gp)
   -- Prepare the announcement message
   local bonusText = " as "..desc.." of "..hostG
-  local message = string.format("I rolled %d - %d with %d MainStanding +%d AuxStanding (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp,  bonusText)
-
+  local message = string.format("I rolled Main Spec %d - %d with %d "..L["MainStanding"].." +%d "..L["AuxStanding"].." (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp,  bonusText)
+  
+  if(isOS) then
+    message = string.format("I rolled Off Spec %d - %d with %d "..L["MainStanding"].." +%d "..L["AuxStanding"].." (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp,  bonusText)
+  end
   if(isSRRoll) then
-    message = string.format("I rolled SR %d - %d with %d MainStanding +%d AuxStanding (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp, bonusText)
+    message = string.format("I rolled SR %d - %d with %d "..L["MainStanding"].." +%d "..L["AuxStanding"].." (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp, bonusText)
   end
   if(isDSRRoll) then
-    message = string.format("I rolled Double SR %d - %d with %d MainStanding +%d AuxStanding (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp, bonusText)
+    message = string.format("I rolled Double SR %d - %d with %d "..L["MainStanding"].." +%d "..L["AuxStanding"].." (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp, bonusText)
   end
 
   if bonus > 0 then
     local weeks = math.floor(bonus / 20)
     bonusText = string.format(" +%d for %d weeks", bonus, weeks)..bonusText
-    message = string.format("I rolled Cumulative SR %d - %d with %d MainStanding +%d(%dGP)%s", minRoll, maxRoll, ep ,cappedGP, gp, bonusText)
+    message = string.format("I rolled Cumulative SR %d - %d with %d "..L["MainStanding"].." +%d(%d"..L["AuxStanding"]..")%s", minRoll, maxRoll, ep ,cappedGP, gp, bonusText)
   end
   -- Determine the chat channel
   local chatType = UnitInRaid("player") and "RAID" or "SAY"
@@ -1899,13 +1960,13 @@ function RetRoll:CheckPugStanding()
   
   for guildName, guildData in pairs(RetRoll_pugCache) do
     if guildData[playerName] then
-      self:defaultPrint(string.format("Your MainStanding for %s: %d , %d", guildName, guildData[playerName][1],guildData[playerName][2]))
+      self:defaultPrint(string.format("Your "..L["MainStanding"].." for %s: %d , %d", guildName, guildData[playerName][1],guildData[playerName][2]))
       foundEP = true
     end
   end
   
   if not foundEP then
-    self:defaultPrint("No MainStanding found for " .. playerName .. " in any guild")
+    self:defaultPrint("No "..L["MainStanding"].." found for " .. playerName .. " in any guild")
   end
 end
 function RetRoll:getAllPugs()
@@ -1952,7 +2013,7 @@ function RetRoll:updateAllPugStanding( force )
 		packet={}
 		pi = 0
 	end
-  self:defaultPrint(string.format("Updated MainStanding for %d Pug player(s)", count))
+  self:defaultPrint(string.format("Updated "..L["MainStanding"].." for %d Pug player(s)", count))
 end
 
 
@@ -2097,7 +2158,7 @@ function RetRoll:SendHostInfoUpdate( member , epgp)
  
 				_,_, ep,gp = string.find(epgp, "{(%d+):(%d+)}")
  
-				DEFAULT_CHAT_FRAME:AddMessage(string.format("MainStandinggp %s  %d %d", epgp,  ep,gp)) 
+				--DEFAULT_CHAT_FRAME:AddMessage(string.format("MainStandinggp %s  %d %d", epgp,  ep,gp)) 
 			else
 				ep = self:get_ep_v3(inGuildName)  
 				gp = self:get_gp_v3(inGuildName)  
