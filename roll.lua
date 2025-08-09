@@ -24,7 +24,7 @@ local function ExecuteCommand(command)
         if RetRoll and RetRoll.RollCommand then
             RetRoll:RollCommand(true, false,false, 0)
         end
-    elseif command == "retcsr" then
+    elseif command == "ret csr" then
         -- Use static popup dialog to input bonus
         StaticPopupDialogs["RET_CSR_INPUT"] = {
             text = "Enter number of weeks you SR this item:",
@@ -82,7 +82,7 @@ local rollFrame = CreateFrame("Frame", "ShootyRollFrame", UIParent)
 rollFrame:SetWidth(80)
 rollFrame:SetHeight(40)
 rollFrame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", RetRoll_RollPos.x, RetRoll_RollPos.y)
-rollFrame:Hide()
+
 if not RetRoll_showRollWindow then
     rollFrame:Hide()
 end
@@ -100,9 +100,9 @@ rollFrame:SetBackdrop({
 
 -- Create the Roll button inside the frame
 local rollButton = CreateFrame("Button", "ShootyRollButton", rollFrame, "UIPanelButtonTemplate")
-rollButton:SetWidth(70)
+rollButton:SetWidth(96)
 rollButton:SetHeight(30)
-rollButton:SetText("Roll")
+rollButton:SetText("The Buttoon")
 rollButton:SetPoint("CENTER", rollFrame, "CENTER")
 
 -- Container for roll buttons, initially hidden
@@ -145,13 +145,11 @@ end
 
 -- Roll option buttons configuration
 local options = {
-    { "MS", "roll" },
-    { "OS", "roll 99" },
-    { "SR", "roll 101" },
-    { "Tmog", "roll 50" },
-    { "Ret roll", "ret roll" },
-    { "Ret sr", "ret sr" },
-    { "Ret CSR", "retcsr" },
+    { "MS", "ret ms" },
+    { "OS", "ret os" },
+    { "SR", "ret sr" },
+    { "CSR", "ret csr" },
+    { "Tmog", "roll 50" },  
     { "Standings", "shooty show" }
 }
 
