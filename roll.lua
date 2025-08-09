@@ -1,6 +1,6 @@
--- Ensure ShootyEPGP_RollPos is initialized with default values
-ShootyEPGP_RollPos = ShootyEPGP_RollPos or { x = 400, y = 300 }
-retep_showRollWindow = true
+-- Ensure RetRoll_RollPos is initialized with default values
+RetRoll_RollPos = RetRoll_RollPos or { x = 400, y = 300 }
+RetRoll_showRollWindow = true
 
 -- Function to execute commands
 local function ExecuteCommand(command)
@@ -13,12 +13,12 @@ local function ExecuteCommand(command)
     elseif command == "roll 50" then
         RandomRoll(1, 50)
     elseif command == "ret roll" then
-        if retep and retep.RollCommand then
-            retep:RollCommand(false, false, 0)
+        if RetRoll and RetRoll.RollCommand then
+            RetRoll:RollCommand(false, false, 0)
         end
     elseif command == "ret sr" then
-        if retep and retep.RollCommand then
-            retep:RollCommand(true, false, 0)
+        if RetRoll and RetRoll.RollCommand then
+            RetRoll:RollCommand(true, false, 0)
         end
     elseif command == "retcsr" then
         -- Use static popup dialog to input bonus
@@ -32,8 +32,8 @@ local function ExecuteCommand(command)
                 local editBox = getglobal(this:GetParent():GetName().."EditBox")
                 local number = tonumber(editBox:GetText())
                 if number then
-                    local bonus = retep:calculateBonus(number)
-                    retep:RollCommand(true, false, bonus)
+                    local bonus = RetRoll:calculateBonus(number)
+                    RetRoll:RollCommand(true, false, bonus)
                 else
                     print("Invalid number entered.")
                 end
@@ -52,8 +52,8 @@ local function ExecuteCommand(command)
                 local editBox = getglobal(this:GetParent():GetName().."EditBox")
                 local number = tonumber(editBox:GetText())
                 if number then
-                    local bonus = retep:calculateBonus(number)
-                    retep:RollCommand(true, false, bonus)
+                    local bonus = RetRoll:calculateBonus(number)
+                    RetRoll:RollCommand(true, false, bonus)
                 else
                     print("Invalid number entered.")
                 end
@@ -69,7 +69,7 @@ local function ExecuteCommand(command)
         }
         StaticPopup_Show("RET_CSR_INPUT")
     elseif command == "shooty show" then
-        retep_standings:Toggle()
+        RetRoll_standings:Toggle()
     end
 end
 
@@ -77,8 +77,8 @@ end
 local rollFrame = CreateFrame("Frame", "ShootyRollFrame", UIParent)
 rollFrame:SetWidth(80)
 rollFrame:SetHeight(40)
-rollFrame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", ShootyEPGP_RollPos.x, ShootyEPGP_RollPos.y)
-if not retep_showRollWindow then
+rollFrame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", RetRoll_RollPos.x, RetRoll_RollPos.y)
+if not RetRoll_showRollWindow then
     rollFrame:Hide()
 end
 rollFrame:SetMovable(true)
@@ -185,8 +185,8 @@ end)
 rollFrame:SetScript("OnMouseUp", function(_, arg1)
     if arg1 == "LeftButton" then
         rollFrame:StopMovingOrSizing()
-        ShootyEPGP_RollPos.x = rollFrame:GetLeft()
-        ShootyEPGP_RollPos.y = rollFrame:GetTop()
+        RetRoll_RollPos.x = rollFrame:GetLeft()
+        RetRoll_RollPos.y = rollFrame:GetTop()
     end
 end)
 
@@ -196,21 +196,21 @@ end)
 
 rollFrame:SetScript("OnDragStop", function()
     rollFrame:StopMovingOrSizing()
-    ShootyEPGP_RollPos.x = rollFrame:GetLeft()
-    ShootyEPGP_RollPos.y = rollFrame:GetTop()
+    RetRoll_RollPos.x = rollFrame:GetLeft()
+    RetRoll_RollPos.y = rollFrame:GetTop()
 end)
 
 -- Restore saved position on load
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("PLAYER_LOGIN")
 eventFrame:SetScript("OnEvent", function()
-    if ShootyEPGP_RollPos.x and ShootyEPGP_RollPos.y then
-        rollFrame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", ShootyEPGP_RollPos.x, ShootyEPGP_RollPos.y)
+    if RetRoll_RollPos.x and RetRoll_RollPos.y then
+        rollFrame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", RetRoll_RollPos.x, RetRoll_RollPos.y)
     else
-        ShootyEPGP_RollPos = { x = 400, y = 300 }
-        rollFrame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", ShootyEPGP_RollPos.x, ShootyEPGP_RollPos.y)
+        RetRoll_RollPos = { x = 400, y = 300 }
+        rollFrame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", RetRoll_RollPos.x, RetRoll_RollPos.y)
     end
-    if not retep_showRollWindow then
+    if not RetRoll_showRollWindow then
         rollFrame:Hide()
     end
 end)

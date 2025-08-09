@@ -1,5 +1,5 @@
-retep = AceLibrary("AceAddon-2.0"):new("AceConsole-2.0", "AceHook-2.1", "AceDB-2.0", "AceDebug-2.0", "AceEvent-2.0", "AceModuleCore-2.0", "FuBarPlugin-2.0")
-retep:SetModuleMixins("AceDebug-2.0")
+RetRoll = AceLibrary("AceAddon-2.0"):new("AceConsole-2.0", "AceHook-2.1", "AceDB-2.0", "AceDebug-2.0", "AceEvent-2.0", "AceModuleCore-2.0", "FuBarPlugin-2.0")
+RetRoll:SetModuleMixins("AceDebug-2.0")
 local D = AceLibrary("Dewdrop-2.0")-- Standings table
 local BZ = AceLibrary("Babble-Zone-2.2")
 local C = AceLibrary("Crayon-2.0") -- chat color
@@ -8,12 +8,12 @@ local BC = AceLibrary("Babble-Class-2.2")
 --local G = AceLibrary("Gratuity-2.0")
 local T = AceLibrary("Tablet-2.0") -- tooltips
 local L = AceLibrary("AceLocale-2.2"):new("retroll")
-retep.VARS = {
-  basegp = 0,
-  dpRollCap = 50,
-  minep = 0,
-  baseaward_ep = 10,
-  decay = 0.9,
+RetRoll.VARS = {
+  baseAE = 0,
+  AERollCap = 50,
+  minPE = 0,
+  baseawardpoints = 10,
+  decay = 0.5,
   max = 1000,
   timeout = 60,
   minlevel = 1,
@@ -24,16 +24,14 @@ retep.VARS = {
   reserveanswer = "^(%+)(%a*)$",
   bop = C:Red("BoP"),
   boe = C:Yellow("BoE"),
-  nobind = C:White("NoBind"),
-  msgp = "Mainspec GP",
-  osgp = "Offspec GP",
+  nobind = C:White("NoBind"), 
   bankde = "Bank-D/E",
   reminder = C:Red("Unassigned"), 
   HostGuildName = "!",
   HostLeadName = "!" 
 }
 
-RetEPMSG = {
+RetRollMSG = {
 	delayedinit = false,
 	dbg= false,
 	prefix = "RR_",
@@ -43,7 +41,7 @@ RetEPMSG = {
 	PugStandingUpdate = "PugStandingUpdate"
 
 }
-retep._playerName = (UnitName("player"))
+RetRoll._playerName = (UnitName("player"))
 local out = "|cff9664c8retroll:|r %s"
 local raidStatus,lastRaidStatus
 local lastUpdate = 0
@@ -66,14 +64,14 @@ do
     hexColorQuality[ITEM_QUALITY_COLORS[i].hex] = i
   end
 end
-local admincmd, membercmd = {type = "group", handler = retep, args = {
+local admincmd, membercmd = {type = "group", handler = RetRoll, args = {
 
     show = {
       type = "execute",
       name = L["Standings"],
       desc = L["Show Standings Table."],
       func = function()
-        retep_standings:Toggle()
+        RetRoll_standings:Toggle()
       end,
       order = 2,
     },        
@@ -82,55 +80,55 @@ local admincmd, membercmd = {type = "group", handler = retep, args = {
       name = L["Restart"],
       desc = L["Restart retroll if having startup problems."],
       func = function() 
-        retep:OnEnable()
-        retep:defaultPrint(L["Restarted"])
+        RetRoll:OnEnable()
+        RetRoll:defaultPrint(L["Restarted"])
       end,
       order = 7,
     },
     roll = {
       type = "execute",
       name = "Roll",
-      desc = "Roll with your EP Points",
+      desc = "Roll with your MainStanding Points",
       func = function() 
-        retep:RollCommand(false,false,0)
+        RetRoll:RollCommand(false,false,0)
       end,
       order = 8,
     },
     sr = {
       type = "execute",
       name = "Roll SR",
-      desc = "Roll Soft Reservie with your EP Points",
+      desc = "Roll Soft Reservie with your MainStanding Points",
       func = function() 
-        retep:RollCommand(true,false,0)
+        RetRoll:RollCommand(true,false,0)
       end,
       order = 9,
     },
     dsr = {
       type = "execute",
       name = "Roll Double SR",
-      desc = "Roll Double Soft Reservie with your EP Points",
+      desc = "Roll Double Soft Reservie with your MainStanding Points",
       func = function() 
-        retep:RollCommand(true,true,0)
+        RetRoll:RollCommand(true,true,0)
       end,
       order = 10,
     },
     ep = {
       type = "execute",
-      name = "Check your pug EP",
-      desc = "Checks your pug EP",
+      name = "Check your pug Standing",
+      desc = "Checks your pug Standing",
       func = function() 
-        retep:CheckPugEP()
+        RetRoll:CheckPugStanding()
       end,
       order = 11,
     },
   }},
-{type = "group", handler = retep, args = {
+{type = "group", handler = RetRoll, args = {
     show = {
       type = "execute",
       name = L["Standings"],
       desc = L["Show Standings Table."],
       func = function()
-        retep_standings:Toggle()
+        RetRoll_standings:Toggle()
       end,
       order = 1,
     },
@@ -139,7 +137,7 @@ local admincmd, membercmd = {type = "group", handler = retep, args = {
       name = L["Progress"],
       desc = L["Print Progress Multiplier."],
       func = function()
-        retep:defaultPrint(retep_progress)
+        RetRoll:defaultPrint(RetRoll_progress)
       end,
       order = 2,
     },
@@ -148,59 +146,59 @@ local admincmd, membercmd = {type = "group", handler = retep, args = {
       name = L["Restart"],
       desc = L["Restart retroll if having startup problems."],
       func = function() 
-        retep:OnEnable()
-        retep:defaultPrint(L["Restarted"])
+        RetRoll:OnEnable()
+        RetRoll:defaultPrint(L["Restarted"])
       end,
       order = 4,
     },
     roll = {
       type = "execute",
       name = "Roll",
-      desc = "Roll with your EP Points",
+      desc = "Roll with your MainStanding Points",
       func = function() 
-        retep:RollCommand(false,false,0)
+        RetRoll:RollCommand(false,false,0)
       end,
       order = 5,
     },
     sr = {
       type = "execute",
       name = "Roll SR",
-      desc = "Roll Soft Reservie with your EP Points",
+      desc = "Roll Soft Reservie with your MainStanding Points",
       func = function() 
-        retep:RollCommand(true,false,0)
+        RetRoll:RollCommand(true,false,0)
       end,
       order = 6,
     },
     dsr = {
       type = "execute",
       name = "Roll Double SR",
-      desc = "Roll Double Soft Reservie with your EP Points",
+      desc = "Roll Double Soft Reservie with your MainStanding Points",
       func = function() 
-        retep:RollCommand(true,true,0)
+        RetRoll:RollCommand(true,true,0)
       end,
       order = 7,
     },
     ep = {
       type = "execute",
-      name = "Check your pug EP",
-      desc = "Checks your pug EP",
+      name = "Check your pug Standing",
+      desc = "Checks your pug Standing",
       func = function() 
-        retep:CheckPugEP()
+        RetRoll:CheckPugStanding()
       end,
       order = 8,
     },
   }}
-retep.cmdtable = function() 
+RetRoll.cmdtable = function() 
   if (admin()) then
     return admincmd
   else
     return membercmd
   end
 end
-retep.reserves = {}
-retep.alts = {}
+RetRoll.reserves = {}
+RetRoll.alts = {}
 
-function retep:buildMenu()
+function RetRoll:buildMenu()
   if not (options) then
     options = {
     type = "group",
@@ -208,83 +206,83 @@ function retep:buildMenu()
     handler = self,
     args = { }
     }
-    options.args["ep"] = {
+    options.args["MainStanding"] = {
       type = "group",
-      name = L["+EPs to Member"],
-      desc = L["Account EPs for member."],
+      name = L["+MainStanding to Member"],
+      desc = L["Account MainStanding for member."],
       order = 10,
       hidden = function() return not (admin()) end,
     }
-    options.args["ep_raid"] = {
+    options.args["MainStanding_raid"] = {
       type = "text",
-      name = L["+EPs to Raid"],
-      desc = L["Award EPs to all raid members."],
+      name = L["+MainStanding to Raid"],
+      desc = L["Award MainStanding to all raid members."],
       order = 20,
-      get = "suggestedAwardEP",
-      set = function(v) retep:award_raid_ep(tonumber(v)) end,
+      get = "suggestedAwardMainStanding",
+      set = function(v) RetRoll:award_raid_ep(tonumber(v)) end,
       usage = "<EP>",
       hidden = function() return not (admin()) end,
       validate = function(v)
         local n = tonumber(v)
-        return n and n >= 0 and n < retep.VARS.max
+        return n and n >= 0 and n < RetRoll.VARS.max
       end
     }
-    options.args["gp"] = {
+    options.args["AuxStanding"] = {
       type = "group",
-      name = L["+GPs to Member"],
-      desc = L["Account GPs for member."],
+      name = L["+AuxStanding to Member"],
+      desc = L["Account AuxStanding for member."],
       order = 30,
       hidden = function() return not (admin()) end,
     }
-	options.args["gp_raid"] = {
+	options.args["AuxStanding_raid"] = {
       type = "text",
-      name = L["+GPs to Raid"],
-      desc = L["Award GPs to all raid members."],
+      name = L["+AuxStanding to Raid"],
+      desc = L["Award AuxStanding to all raid members."],
       order = 35,
-      get = "suggestedAwardGP",
-      set = function(v) retep:award_raid_gp(tonumber(v)) end,
+      get = "suggestedAwardAuxStanding",
+      set = function(v) RetRoll:award_raid_gp(tonumber(v)) end,
       usage = "<GP>",
       hidden = function() return not (admin()) end,
       validate = function(v)
         local n = tonumber(v)
-        return n and n >= 0 and n < retep.VARS.max
+        return n and n >= 0 and n < RetRoll.VARS.max
       end
     }
  
     options.args["updatePugs"] = {
       type = "execute",
-      name = "Update Pug EP",
-      desc = "Update Pug EP",
+      name = "Update Pug MainStanding",
+      desc = "Update Pug MainStanding",
       order = 62,
       hidden = function() return not (admin()) end,
-      func = function() retep:updateAllPugEP(false) end
+      func = function() RetRoll:updateAllPugStanding(false) end
     }
     options.args["alts"] = {
       type = "toggle",
       name = L["Enable Alts"],
-      desc = L["Allow Alts to use Main\'s EPGP."],
+      desc = L["Allow Alts to use Main\'s Standing."],
       order = 63,
       hidden = function() return not (admin()) end,
       disabled = function() return not (IsGuildLeader()) end,
-      get = function() return not not retep_altspool end,
+      get = function() return not not RetRollAltspool end,
       set = function(v) 
-        retep_altspool = not retep_altspool
+        RetRollAltspool = not RetRollAltspool
         if (IsGuildLeader()) then
-          retep:shareSettings(true)
+          RetRoll:shareSettings(true)
         end
       end,
     }
     options.args["alts_percent"] = {
       type = "range",
-      name = L["Alts EP %"],
-      desc = L["Set the % EP Alts can earn."],
+      name = L["Alts MainStanding %"],
+      desc = L["Set the % MainStanding Alts can earn."],
       order = 66,
-      hidden = function() return (not retep_altspool) or (not IsGuildLeader()) end,
-      get = function() return retep_altpercent end,
+      hidden = function() return (not RetRollAltspool) or (not IsGuildLeader()) end,
+      get = function() return RetRoll_altpercent end,
       set = function(v) 
-        retep_altpercent = v
+        RetRoll_altpercent = v
         if (IsGuildLeader()) then
-          retep:shareSettings(true)
+          RetRoll:shareSettings(true)
         end
       end,
       min = 0.5,
@@ -298,18 +296,18 @@ function retep:buildMenu()
       desc = L["Set your Main Character for Reserve List."],
       order = 70,
       usage = "<MainChar>",
-      get = function() return retep_main end,
-      set = function(v) retep_main = (retep:verifyGuildMember(v)) end,
+      get = function() return RetRoll_main end,
+      set = function(v) RetRoll_main = (RetRoll:verifyGuildMember(v)) end,
     }    
     options.args["raid_only"] = {
       type = "toggle",
       name = L["Raid Only"],
       desc = L["Only show members in raid."],
       order = 80,
-      get = function() return not not retep_raidonly end,
+      get = function() return not not RetRoll_raidonly end,
       set = function(v) 
-        retep_raidonly = not retep_raidonly
-        retep:SetRefresh(true)
+        RetRoll_raidonly = not RetRoll_raidonly
+        RetRoll:SetRefresh(true)
       end,
     }
     options.args["report_channel"] = {
@@ -318,17 +316,17 @@ function retep:buildMenu()
       desc = L["Channel used by reporting functions."],
       order = 95,
       hidden = function() return not (admin()) end,
-      get = function() return retep_saychannel end,
-      set = function(v) retep_saychannel = v end,
+      get = function() return RetRoll_saychannel end,
+      set = function(v) RetRoll_saychannel = v end,
       validate = { "PARTY", "RAID", "GUILD", "OFFICER" },
     }    
     options.args["decay"] = {
       type = "execute",
-      name = L["Decay EPGP"],
-      desc = string.format(L["Decays all EPGP by %s%%"],(1-(retep_decay or retep.VARS.decay))*100),
+      name = L["Decay Standing"],
+      desc = string.format(L["Decays all Standing by %s%%"],(1-(RetRoll_decay or RetRoll.VARS.decay))*100),
       order = 100,
       hidden = function() return not (admin()) end,
-      func = function() retep:decay_epgp_v3() end 
+      func = function() RetRoll:decay_epgp_v3() end 
     }    
     options.args["set_decay"] = {
       type = "range",
@@ -336,12 +334,12 @@ function retep:buildMenu()
       desc = L["Set Decay percentage (Admin only)."],
       order = 110,
       usage = "<Decay>",
-      get = function() return (1.0-retep_decay) end,
+      get = function() return (1.0-RetRoll_decay) end,
       set = function(v) 
-        retep_decay = (1 - v)
-        options.args["decay"].desc = string.format(L["Decays all EPGP by %s%%"],(1-retep_decay)*100)
+        RetRoll_decay = (1 - v)
+        options.args["decay"].desc = string.format(L["Decays all Standing by %s%%"],(1-RetRoll_decay)*100)
         if (IsGuildLeader()) then
-          retep:shareSettings(true)
+          RetRoll:shareSettings(true)
         end
       end,
       min = 0.01,
@@ -354,42 +352,42 @@ function retep:buildMenu()
 
     options.args["set_min_ep_header"] = {
       type = "header",
-      name = string.format(L["Minimum EP: %s"],retep_minep),
+      name = string.format(L["Minimum MainStanding: %s"],RetRoll_minPE),
       order = 117,
       hidden = function() return admin() end,
     }
     options.args["set_min_ep"] = {
       type = "text",
-      name = L["Minimum EP"],
-      desc = L["Set Minimum EP"],
-      usage = "<minep>",
+      name = L["Minimum MainStanding"],
+      desc = L["Set Minimum MainStanding"],
+      usage = "<minPE>",
       order = 118,
-      get = function() return retep_minep end,
+      get = function() return RetRoll_minPE end,
       set = function(v) 
-        retep_minep = tonumber(v)
-        retep:refreshPRTablets()
+        RetRoll_minPE = tonumber(v)
+        RetRoll:refreshPRTablets()
         if (IsGuildLeader()) then
-          retep:shareSettings(true)
+          RetRoll:shareSettings(true)
         end        
       end,
       validate = function(v) 
         local n = tonumber(v)
-        return n and n >= 0 and n <= retep.VARS.max
+        return n and n >= 0 and n <= RetRoll.VARS.max
       end,
       hidden = function() return not admin() end,
     }
     options.args["reset"] = {
      type = "execute",
-     name = L["Reset EPGP"],
-     desc = string.format(L["Resets everyone\'s EPGP to 0/%d (Admin only)."],retep.VARS.basegp),
+     name = L["Reset Standing"],
+     desc = string.format(L["Resets everyone\'s Standing to 0/%d (Admin only)."],RetRoll.VARS.baseAE),
      order = 120,
      hidden = function() return not (IsGuildLeader()) end,
      func = function() StaticPopup_Show("RET_EP_CONFIRM_RESET") end
     }
-    options.args["resetGP"] = {
+    options.args["resetAuxStanding"] = {
      type = "execute",
-     name = L["Reset GP"],
-     desc = string.format(L["Resets everyone\'s GP to 0/%d (Admin only)."],retep.VARS.basegp),
+     name = L["Reset AuxStanding"],
+     desc = string.format(L["Resets everyone\'s AuxStanding to 0/%d (Admin only)."],RetRoll.VARS.baseAE),
      order = 122,
      hidden = function() return not (IsGuildLeader()) end,
      func = function() StaticPopup_Show("RET_GP_CONFIRM_RESET") end
@@ -397,40 +395,40 @@ function retep:buildMenu()
 
   end
   if (needInit) or (needRefresh) then
-    local members = retep:buildRosterTable()
-    self:debugPrint(string.format(L["Scanning %d members for EP/GP data. (%s)"],table.getn(members),(retep_raidonly and "Raid" or "Full")))
-    options.args["ep"].args = retep:buildClassMemberTable(members,"ep")
-    options.args["gp"].args = retep:buildClassMemberTable(members,"gp")
+    local members = RetRoll:buildRosterTable()
+    self:debugPrint(string.format(L["Scanning %d members for Standing data. (%s)"],table.getn(members),(RetRoll_raidonly and "Raid" or "Full")))
+    options.args["MainStanding"].args = RetRoll:buildClassMemberTable(members,"MainStanding")
+    options.args["AuxStanding"].args = RetRoll:buildClassMemberTable(members,"AuxStanding")
     if (needInit) then needInit = false end
     if (needRefresh) then needRefresh = false end
   end
   return options
 end
 
-function retep:OnInitialize() -- ADDON_LOADED (1) unless LoD
-  if retep_saychannel == nil then retep_saychannel = "GUILD" end
-  if retep_decay == nil then retep_decay = retep.VARS.decay end
-  if retep_minep == nil then retep_minep = retep.VARS.minep end
- -- if retep_progress == nil then retep_progress = "T1" end
- -- if retep_discount == nil then retep_discount = 0.25 end
-  if retep_altspool == nil then retep_altspool = true end
-  if retep_altpercent == nil then retep_altpercent = 1.0 end
-  if retep_log == nil then retep_log = {} end
-  if retep_looted == nil then retep_looted = {} end
-  if retep_debug == nil then retep_debug = {} end
-  if retep_pugCache == nil then retep_pugCache = {} end 
-  --if retep_showRollWindow == nil then retep_showRollWindow = true end
-  self:RegisterDB("retep_fubar")
+function RetRoll:OnInitialize() -- ADDON_LOADED (1) unless LoD
+  if RetRoll_saychannel == nil then RetRoll_saychannel = "GUILD" end
+  if RetRoll_decay == nil then RetRoll_decay = RetRoll.VARS.decay end
+  if RetRoll_minPE == nil then RetRoll_minPE = RetRoll.VARS.minPE end
+ -- if RetRoll_progress == nil then RetRoll_progress = "T1" end
+ -- if RetRoll_discount == nil then RetRoll_discount = 0.25 end
+  if RetRollAltspool == nil then RetRollAltspool = true end
+  if RetRoll_altpercent == nil then RetRoll_altpercent = 1.0 end
+  if RetRoll_log == nil then RetRoll_log = {} end
+  if RetRoll_looted == nil then RetRoll_looted = {} end
+  if RetRoll_debug == nil then RetRoll_debug = {} end
+  if RetRoll_pugCache == nil then RetRoll_pugCache = {} end 
+  --if RetRoll_showRollWindow == nil then RetRoll_showRollWindow = true end
+  self:RegisterDB("RetRoll_fubar")
   self:RegisterDefaults("char",{})
-  --table.insert(retep_debug,{[date("%b/%d %H:%M:%S")]="OnInitialize"})
+  --table.insert(RetRoll_debug,{[date("%b/%d %H:%M:%S")]="OnInitialize"})
 end
 
-function retep:OnEnable() -- PLAYER_LOGIN (2)
-  --table.insert(retep_debug,{[date("%b/%d %H:%M:%S")]="OnEnable"})
-  retep._playerLevel = UnitLevel("player")
-  --retep.extratip = (retep.extratip) or CreateFrame("GameTooltip","retroll_tooltip",UIParent,"GameTooltipTemplate")
-  retep._versionString = GetAddOnMetadata("retroll","Version")
-  retep._websiteString = GetAddOnMetadata("retroll","X-Website")
+function RetRoll:OnEnable() -- PLAYER_LOGIN (2)
+  --table.insert(RetRoll_debug,{[date("%b/%d %H:%M:%S")]="OnEnable"})
+  RetRoll._playerLevel = UnitLevel("player")
+  --RetRoll.extratip = (RetRoll.extratip) or CreateFrame("GameTooltip","retroll_tooltip",UIParent,"GameTooltipTemplate")
+  RetRoll._versionString = GetAddOnMetadata("retroll","Version")
+  RetRoll._websiteString = GetAddOnMetadata("retroll","X-Website")
   
   if (IsInGuild()) then
     if (GetNumGuildMembers()==0) then
@@ -444,36 +442,36 @@ function retep:OnEnable() -- PLAYER_LOGIN (2)
  
   self:RegisterEvent("GUILD_ROSTER_UPDATE",function() 
       if (arg1) then -- member join /leave
-        retep:SetRefresh(true)
+        RetRoll:SetRefresh(true)
       end
     end)
  
   self:RegisterEvent("CHAT_MSG_ADDON",function() 
-        RetEPMSG:OnCHAT_MSG_ADDON( arg1, arg2, arg3, arg4)
+        RetRollMSG:OnCHAT_MSG_ADDON( arg1, arg2, arg3, arg4)
     end)
   self:RegisterEvent("RAID_ROSTER_UPDATE",function()
-      retep:SetRefresh(true)
-	  retep:UpdateHostInfo()
-     -- retep:testLootPrompt()
+      RetRoll:SetRefresh(true)
+	  RetRoll:UpdateHostInfo()
+     -- RetRoll:testLootPrompt()
     end)
   self:RegisterEvent("PARTY_MEMBERS_CHANGED",function()
-      retep:SetRefresh(true)
-     -- retep:testLootPrompt()
+      RetRoll:SetRefresh(true)
+     -- RetRoll:testLootPrompt()
     end)
   self:RegisterEvent("PLAYER_ENTERING_WORLD",function()
-      retep:SetRefresh(true)
-	  retep:UpdateHostInfo()
-     -- retep:testLootPrompt()
+      RetRoll:SetRefresh(true)
+	  RetRoll:UpdateHostInfo()
+     -- RetRoll:testLootPrompt()
     end)
-  if retep._playerLevel and retep._playerLevel < MAX_PLAYER_LEVEL then
+  if RetRoll._playerLevel and RetRoll._playerLevel < MAX_PLAYER_LEVEL then
     self:RegisterEvent("PLAYER_LEVEL_UP", function()
         if (arg1) then
-          retep._playerLevel = tonumber(arg1)
-          if retep._playerLevel == MAX_PLAYER_LEVEL then
-            retep:UnregisterEvent("PLAYER_LEVEL_UP")
+          RetRoll._playerLevel = tonumber(arg1)
+          if RetRoll._playerLevel == MAX_PLAYER_LEVEL then
+            RetRoll:UnregisterEvent("PLAYER_LEVEL_UP")
           end
-          if retep._playerLevel and retep._playerLevel >= retep.VARS.minlevel then
-            retep:testMain()
+          if RetRoll._playerLevel and RetRoll._playerLevel >= RetRoll.VARS.minlevel then
+            RetRoll:testMain()
           end
         end
       end)
@@ -493,15 +491,15 @@ function retep:OnEnable() -- PLAYER_LOGIN (2)
   end
 end
 
-function retep:OnDisable()
+function RetRoll:OnDisable()
 
---DEFAULT_CHAT_FRAME:AddMessage("retep:OnDisable()") 
-  --table.insert(retep_debug,{[date("%b/%d %H:%M:%S")]="OnDisable"})
+--DEFAULT_CHAT_FRAME:AddMessage("RetRoll:OnDisable()") 
+  --table.insert(RetRoll_debug,{[date("%b/%d %H:%M:%S")]="OnDisable"})
   self:UnregisterAllEvents()
 end
 
-function retep:AceEvent_FullyInitialized() -- SYNTHETIC EVENT, later than PLAYER_LOGIN, PLAYER_ENTERING_WORLD (3)
-  --table.insert(retep_debug,{[date("%b/%d %H:%M:%S")]="AceEvent_FullyInitialized"})
+function RetRoll:AceEvent_FullyInitialized() -- SYNTHETIC EVENT, later than PLAYER_LOGIN, PLAYER_ENTERING_WORLD (3)
+  --table.insert(RetRoll_debug,{[date("%b/%d %H:%M:%S")]="AceEvent_FullyInitialized"})
   if self._hasInitFull then return end
   
   for i=1,NUM_CHAT_WINDOWS do
@@ -530,15 +528,15 @@ function retep:AceEvent_FullyInitialized() -- SYNTHETIC EVENT, later than PLAYER
   -- if pfUI loaded, skin the extra tooltip
  --if not IsAddOnLoaded("pfUI-addonskins") then
  --  if (pfUI) and pfUI.api and pfUI.api.CreateBackdrop and pfUI_config and pfUI_config.tooltip and pfUI_config.tooltip.alpha then
- --    pfUI.api.CreateBackdrop(retep.extratip,nil,nil,tonumber(pfUI_config.tooltip.alpha))
+ --    pfUI.api.CreateBackdrop(RetRoll.extratip,nil,nil,tonumber(pfUI_config.tooltip.alpha))
  --  end
  --end
 
   self._hasInitFull = true
 end
 
-retep._lastRosterRequest = false
-function retep:OnMenuRequest()
+RetRoll._lastRosterRequest = false
+function RetRoll:OnMenuRequest()
   local now = GetTime()
   if not self._lastRosterRequest or (now - self._lastRosterRequest > 2) then
     self._lastRosterRequest = now
@@ -550,36 +548,36 @@ function retep:OnMenuRequest()
 end
 
  
-function retep:delayedInit()
-  --table.insert(retep_debug,{[date("%b/%d %H:%M:%S")]="delayedInit"})
-  retep.VARS.GuildName  =""
+function RetRoll:delayedInit()
+  --table.insert(RetRoll_debug,{[date("%b/%d %H:%M:%S")]="delayedInit"})
+  RetRoll.VARS.GuildName  =""
   if (IsInGuild()) then
-    retep.VARS.GuildName  = (GetGuildInfo("player"))
-    if (retep.VARS.GuildName ) and retep.VARS.GuildName  ~= "" then
-      retep_reservechannel = string.format("%sReserves",(string.gsub(retep.VARS.GuildName ," ",""))) 
-    --  retep.VARS.GuildPugBroadCastCN  = retep:GetGuildPugChannelName(retep.VARS.GuildName)
-     -- if (admin()) then JoinChannelByName(retep.VARS.GuildPugBroadCastCN) end
+    RetRoll.VARS.GuildName  = (GetGuildInfo("player"))
+    if (RetRoll.VARS.GuildName ) and RetRoll.VARS.GuildName  ~= "" then
+      RetRoll_reservechannel = string.format("%sReserves",(string.gsub(RetRoll.VARS.GuildName ," ",""))) 
+    --  RetRoll.VARS.GuildPugBroadCastCN  = RetRoll:GetGuildPugChannelName(RetRoll.VARS.GuildName)
+     -- if (admin()) then JoinChannelByName(RetRoll.VARS.GuildPugBroadCastCN) end
     end
   end
-  if retep_reservechannel == nil then retep_reservechannel = retep.VARS.reservechan end  
-  local reservesChannelID = tonumber((GetChannelName(retep_reservechannel)))
+  if RetRoll_reservechannel == nil then RetRoll_reservechannel = RetRoll.VARS.reservechan end  
+  local reservesChannelID = tonumber((GetChannelName(RetRoll_reservechannel)))
   if (reservesChannelID) and (reservesChannelID ~= 0) then
     self:reservesToggle(true)
   end
-  -- migrate EPGP storage if needed
+  -- migrate Standing storage if needed
   
  
---  self:parseVersion(retep._versionString)
+--  self:parseVersion(RetRoll._versionString)
    
   local major_ver = 0 --self._version.major or 0
- -- if IsGuildLeader() and ( (retep_dbver == nil) or (major_ver > retep_dbver) ) then
- --   retep[string.format("v%dtov%d",(retep_dbver or 2),major_ver)](retep)
+ -- if IsGuildLeader() and ( (RetRoll_dbver == nil) or (major_ver > RetRoll_dbver) ) then
+ --   RetRoll[string.format("v%dtov%d",(RetRoll_dbver or 2),major_ver)](RetRoll)
  -- end
  
   -- init options and comms
   self._options = self:buildMenu()
-  self:RegisterChatCommand({"/shooty","/retep","/retroll","/ret"},self.cmdtable())
-  function retep:calculateBonus(input)
+  self:RegisterChatCommand({"/shooty","/RetRoll","/retroll","/ret"},self.cmdtable())
+  function RetRoll:calculateBonus(input)
     local number = tonumber(input)
     if number and number >= 2 and number <= 15 then
         return number * 20
@@ -588,13 +586,13 @@ function retep:delayedInit()
   end
   
   self:RegisterChatCommand({"/retcsr"}, function(input)
-    local bonus = retep:calculateBonus(input)
+    local bonus = RetRoll:calculateBonus(input)
     self:RollCommand(true, false, bonus)
   end)
-  self:RegisterChatCommand({"/updatepugep"}, function() retep:updateAllPugEP(false) end)
+  self:RegisterChatCommand({"/updatepugs"}, function() RetRoll:updateAllPugStanding(false) end)
   --self:RegisterEvent("CHAT_MSG_ADDON","addonComms")  
   -- broadcast our version
-  local addonMsg = string.format("VERSION;%s;%d",retep._versionString,major_ver or 0)
+  local addonMsg = string.format("VERSION;%s;%d",RetRoll._versionString,major_ver or 0)
   self:addonMessage(addonMsg,"GUILD")
   if (IsGuildLeader()) then
     self:shareSettings()
@@ -605,36 +603,36 @@ function retep:delayedInit()
       self:Hook("GuildRosterSetOfficerNote")
     end
   end
-  RetEPMSG.delayedinit = true
-  self:defaultPrint(string.format(L["v%s Loaded."],retep._versionString))
+  RetRollMSG.delayedinit = true
+  self:defaultPrint(string.format(L["v%s Loaded."],RetRoll._versionString))
 end
 
 
-function retep:OnUpdate(elapsed)
-  retep.timer.count_down = retep.timer.count_down - elapsed
+function RetRoll:OnUpdate(elapsed)
+  RetRoll.timer.count_down = RetRoll.timer.count_down - elapsed
   lastUpdate = lastUpdate + elapsed
 
   if lastUpdate > 0.5 then
     lastUpdate = 0
-    retep_reserves:Refresh()
+    RetRoll_reserves:Refresh()
   end
 end
 
-function retep:GuildRosterSetOfficerNote(index,note,fromAddon)
+function RetRoll:GuildRosterSetOfficerNote(index,note,fromAddon)
   if (fromAddon) then
     self.hooks["GuildRosterSetOfficerNote"](index,note)
   else
     local name, _, _, _, _, _, _, prevnote, _, _ = GetGuildRosterInfo(index)
     local _,_,_,oldepgp,_ = string.find(prevnote or "","(.*)({%d+:%d+})(.*)")
     local _,_,_,epgp,_ = string.find(note or "","(.*)({%d+:%d+})(.*)")
-    if (retep_altspool) then
+    if (RetRollAltspool) then
       local oldmain = self:parseAlt(name,prevnote)
       local main = self:parseAlt(name,note)
       if oldmain ~= nil then
         if main == nil or main ~= oldmain then 
-		 local isbnk, pugname = retep:isBank(name)
+		 local isbnk, pugname = RetRoll:isBank(name)
 			if isbnk then
-				retep:ReportPugManualEdit(pugname , epgp )
+				RetRoll:ReportPugManualEdit(pugname , epgp )
 			end
           self:adminSay(string.format(L["Manually modified %s\'s note. Previous main was %s"],name,oldmain))
           self:defaultPrint(string.format(L["|cffff0000Manually modified %s\'s note. Previous main was %s|r"],name,oldmain))
@@ -643,12 +641,12 @@ function retep:GuildRosterSetOfficerNote(index,note,fromAddon)
     end    
     if oldepgp ~= nil then
       if epgp == nil or epgp ~= oldepgp then
-		 local isbnk, pugname = retep:isBank(name)
+		 local isbnk, pugname = RetRoll:isBank(name)
 			if isbnk then
-				retep:ReportPugManualEdit(pugname , epgp )
+				RetRoll:ReportPugManualEdit(pugname , epgp )
 			end
-        self:adminSay(string.format(L["Manually modified %s\'s note. EPGP was %s"],name,oldepgp))
-        self:defaultPrint(string.format(L["|cffff0000Manually modified %s\'s note. EPGP was %s|r"],name,oldepgp))
+        self:adminSay(string.format(L["Manually modified %s\'s note. Standing was %s"],name,oldepgp))
+        self:defaultPrint(string.format(L["|cffff0000Manually modified %s\'s note. Standing was %s|r"],name,oldepgp))
       end
     end
     local safenote = string.gsub(note,"(.*)({%d+:%d+})(.*)",sanitizeNote)
@@ -660,7 +658,7 @@ end
 -------------------
 -- Communication
 -------------------
-function retep:flashFrame(frame)
+function RetRoll:flashFrame(frame)
   local tabFlash = getglobal(frame:GetName().."TabFlash")
   if ( not frame.isDocked or (frame == SELECTED_DOCK_FRAME) or UIFrameIsFlashing(tabFlash) ) then
     return
@@ -669,7 +667,7 @@ function retep:flashFrame(frame)
   UIFrameFlash(tabFlash, 0.25, 0.25, 60, nil, 0.5, 0.5)
 end
 
-function retep:debugPrint(msg)
+function RetRoll:debugPrint(msg)
   if (shooty_debugchat) then
     shooty_debugchat:AddMessage(string.format(out,msg))
     self:flashFrame(shooty_debugchat)
@@ -678,7 +676,7 @@ function retep:debugPrint(msg)
   end
 end
 
-function retep:defaultPrint(msg)
+function RetRoll:defaultPrint(msg)
   if not DEFAULT_CHAT_FRAME:IsVisible() then
     FCF_SelectDockFrame(DEFAULT_CHAT_FRAME)
   end
@@ -686,11 +684,11 @@ function retep:defaultPrint(msg)
 end
 
 
-function retep:simpleSay(msg)
-  SendChatMessage(string.format("retroll: %s",msg), retep_saychannel)
+function RetRoll:simpleSay(msg)
+  SendChatMessage(string.format("retroll: %s",msg), RetRoll_saychannel)
 end
 
-function retep:adminSay(msg)
+function RetRoll:adminSay(msg)
   -- API is broken on Elysium
   -- local g_listen, g_speak, officer_listen, officer_speak, g_promote, g_demote, g_invite, g_remove, set_gmotd, set_publicnote, view_officernote, edit_officernote, set_guildinfo = GuildControlGetRankFlags() 
   -- if (officer_speak) then
@@ -698,7 +696,7 @@ function retep:adminSay(msg)
   -- end
 end
 
-function retep:widestAudience(msg)
+function RetRoll:widestAudience(msg)
   local channel = "SAY"
   if UnitInRaid("player") then
     if (IsRaidLeader() or IsRaidOfficer()) then
@@ -712,11 +710,11 @@ function retep:widestAudience(msg)
   SendChatMessage(msg, channel)
 end
 
-function retep:addonMessage(message,channel,sender)
+function RetRoll:addonMessage(message,channel,sender)
   SendAddonMessage(self.VARS.prefix,message,channel,sender)
 end
 
-function retep:addonComms(prefix,message,channel,sender)
+function RetRoll:addonComms(prefix,message,channel,sender)
   if not prefix == self.VARS.prefix then return end -- we don't care for messages from other addons
   if sender == self._playerName then return end -- we don't care for messages from ourselves
   local name_g,class,rank = self:verifyGuildMember(sender,true)
@@ -729,25 +727,25 @@ function retep:addonComms(prefix,message,channel,sender)
   end
   if (who) and (what) and (amount) then
     local msg
-    local for_main = (retep_main and (who == retep_main))
+    local for_main = (RetRoll_main and (who == RetRoll_main))
     if (who == self._playerName) or (for_main) then
-      if what == "EP" then
+      if what == "MainStanding" then
         if amount < 0 then
-          msg = string.format(L["You have received a %d EP penalty."],amount)
+          msg = string.format(L["You have received a %d MainStanding penalty."],amount)
         else
-          msg = string.format(L["You have been awarded %d EP."],amount)
+          msg = string.format(L["You have been awarded %d MainStanding."],amount)
         end
-      elseif what == "GP" then
-        msg = string.format(L["You have gained %d GP."],amount)
+      elseif what == "AuxStanding" then
+        msg = string.format(L["You have gained %d AuxStanding."],amount)
       end
     elseif who == "ALL" and what == "DECAY" then
-      msg = string.format(L["%s%% decay to EP and GP."],amount)
+      msg = string.format(L["%s%% decay to Standing."],amount)
     elseif who == "RAID" and what == "AWARD" then
-      msg = string.format(L["%d EP awarded to Raid."],amount)
-    elseif who == "RAID" and what == "AWARDGP" then
-      msg = string.format(L["%d EP awarded to Raid."],amount)
+      msg = string.format(L["%d MainStanding awarded to Raid."],amount)
+    elseif who == "RAID" and what == "AWARDAuxStanding" then
+      msg = string.format(L["%d MainStanding awarded to Raid."],amount)
     elseif who == "RESERVES" and what == "AWARD" then
-      msg = string.format(L["%d GP awarded to Reserves."],amount)
+      msg = string.format(L["%d AuxStanding awarded to Reserves."],amount)
     elseif who == "VERSION" then
       local out_of_date, version_type = self:parseVersion(self._versionString,what)
       if (out_of_date) and self._newVersionNotification == nil then
@@ -759,32 +757,32 @@ function retep:addonComms(prefix,message,channel,sender)
         self:shareSettings()
       end
     elseif who == "SETTINGS" then
-      for progress,discount,decay,minep,alts,altspct in string.gfind(what, "([^:]+):([^:]+):([^:]+):([^:]+):([^:]+):([^:]+)") do
+      for progress,discount,decay,minPE,alts,altspct in string.gfind(what, "([^:]+):([^:]+):([^:]+):([^:]+):([^:]+):([^:]+)") do
         discount = tonumber(discount)
         decay = tonumber(decay)
-        minep = tonumber(minep)
+        minPE = tonumber(minPE)
         alts = (alts == "true") and true or false
         altspct = tonumber(altspct)
         local settings_notice
-        --if progress and progress ~= retep_progress then
-        --  retep_progress = progress
+        --if progress and progress ~= RetRoll_progress then
+        --  RetRoll_progress = progress
         --  settings_notice = L["New raid progress"]
         --end
-        --if discount and discount ~= retep_discount then
-        --  retep_discount = discount
+        --if discount and discount ~= RetRoll_discount then
+        --  RetRoll_discount = discount
         --  if (settings_notice) then
         --    settings_notice = settings_notice..L[", offspec price %"]
         --  else
         --    settings_notice = L["New offspec price %"]
         --  end
         --end
-        if minep and minep ~= retep_minep then
-          retep_minep = minep
-          settings_notice = L["New Minimum EP"]
-          retep:refreshPRTablets()
+        if minPE and minPE ~= RetRoll_minPE then
+          RetRoll_minPE = minPE
+          settings_notice = L["New Minimum MainStanding"]
+          RetRoll:refreshPRTablets()
         end
-        if decay and decay ~= retep_decay then
-          retep_decay = decay
+        if decay and decay ~= RetRoll_decay then
+          RetRoll_decay = decay
           if (admin()) then
             if (settings_notice) then
               settings_notice = settings_notice..L[", decay %"]
@@ -793,8 +791,8 @@ function retep:addonComms(prefix,message,channel,sender)
             end
           end
         end
-        if alts ~= nil and alts ~= retep_altspool then
-          retep_altspool = alts
+        if alts ~= nil and alts ~= RetRollAltspool then
+          RetRollAltspool = alts
           if (admin()) then
             if (settings_notice) then
               settings_notice = settings_notice..L[", alts"]
@@ -803,13 +801,13 @@ function retep:addonComms(prefix,message,channel,sender)
             end
           end          
         end
-        if altspct and altspct ~= retep_altpercent then
-          retep_altpercent = altspct
+        if altspct and altspct ~= RetRoll_altpercent then
+          RetRoll_altpercent = altspct
           if (admin()) then
             if (settings_notice) then
-              settings_notice = settings_notice..L[", alts ep %"]
+              settings_notice = settings_notice..L[", alts MainStanding %"]
             else
-              settings_notice = L["New Alts EP %"]
+              settings_notice = L["New Alts MainStanding %"]
             end
           end          
         end
@@ -817,9 +815,9 @@ function retep:addonComms(prefix,message,channel,sender)
           local sender_rank = string.format("%s(%s)",C:Colorize(BC:GetHexColor(class),sender),rank)
           settings_notice = settings_notice..string.format(L[" settings accepted from %s"],sender_rank)
           self:defaultPrint(settings_notice)
-         -- self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"],retep_progress)
-         -- self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"],retep_discount*100)
-          self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"],retep_minep)
+         -- self._options.args["RollValueogress_tier_header"].name = string.format(L["Progress Setting: %s"],RetRoll_progress)
+         -- self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"],RetRoll_discount*100)
+          self._options.args["set_min_ep_header"].name = string.format(L["Minimum MainStanding: %s"],RetRoll_minPE)
         end
       end
     end
@@ -830,31 +828,31 @@ function retep:addonComms(prefix,message,channel,sender)
   end
 end
 
-function retep:shareSettings(force)
+function RetRoll:shareSettings(force)
   local now = GetTime()
   if self._lastSettingsShare == nil or (now - self._lastSettingsShare > 30) or (force) then
     self._lastSettingsShare = now
-    local addonMsg = string.format("SETTINGS;%s:%s:%s:%s:%s:%s;1",0,0,retep_decay,retep_minep,tostring(retep_altspool),retep_altpercent)
+    local addonMsg = string.format("SETTINGS;%s:%s:%s:%s:%s:%s;1",0,0,RetRoll_decay,RetRoll_minPE,tostring(RetRollAltspool),RetRoll_altpercent)
     self:addonMessage(addonMsg,"GUILD")
   end
 end
 
-function retep:refreshPRTablets()
-  --if not T:IsAttached("retep_standings") then
-  retep_standings:Refresh()
+function RetRoll:refreshPRTablets()
+  --if not T:IsAttached("RetRoll_standings") then
+  RetRoll_standings:Refresh()
   --end
  
 end
 
 ---------------------
--- EPGP Operations
+-- Standing Operations
 ---------------------
 
 
-function retep:init_notes_v3(guild_index,name,officernote)
+function RetRoll:init_notes_v3(guild_index,name,officernote)
   local ep,gp = self:get_ep_v3(name,officernote), self:get_gp_v3(name,officernote)
   if not (ep and gp) then
-    local initstring = string.format("{%d:%d}",0,retep.VARS.basegp)
+    local initstring = string.format("{%d:%d}",0,RetRoll.VARS.baseAE)
     local newnote = string.format("%s%s",officernote,initstring)
     newnote = string.gsub(newnote,"(.*)({%d+:%d+})(.*)",sanitizeNote)
     officernote = newnote
@@ -865,7 +863,7 @@ function retep:init_notes_v3(guild_index,name,officernote)
   return officernote
 end
 
-function retep:update_epgp_v3(ep,gp,guild_index,name,officernote,special_action)
+function RetRoll:update_epgp_v3(ep,gp,guild_index,name,officernote,special_action)
   officernote = self:init_notes_v3(guild_index,name,officernote)
   local newnote
   if (ep) then
@@ -875,7 +873,7 @@ function retep:update_epgp_v3(ep,gp,guild_index,name,officernote,special_action)
       end)
   end
   if (gp) then
-    gp =  math.max(retep.VARS.basegp,gp)
+    gp =  math.max(RetRoll.VARS.baseAE,gp)
     if (newnote) then
       newnote = string.gsub(newnote,"(.*{)(%d+)(:)(%d+)(}.*)",function(head,oldep,divider,oldgp,tail)
         return string.format("%s%s%s%s%s",head,oldep,divider,gp,tail)
@@ -893,7 +891,7 @@ end
 
 
 
-function retep:update_ep_v3(getname,ep)
+function RetRoll:update_ep_v3(getname,ep)
   for i = 1, GetNumGuildMembers(1) do
     local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
     if (name==getname) then 
@@ -903,7 +901,7 @@ function retep:update_ep_v3(getname,ep)
 end
 
 
-function retep:update_gp_v3(getname,gp)
+function RetRoll:update_gp_v3(getname,gp)
   for i = 1, GetNumGuildMembers(1) do
     local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
     if (name==getname) then 
@@ -913,7 +911,7 @@ function retep:update_gp_v3(getname,gp)
 end
 
 
-function retep:get_ep_v3(getname,officernote) -- gets ep by name or note
+function RetRoll:get_ep_v3(getname,officernote) -- gets ep by name or note
   if (officernote) then
     local _,_,ep = string.find(officernote,".*{(%d+):%-?%d+}.*")
     return tonumber(ep)
@@ -926,7 +924,7 @@ function retep:get_ep_v3(getname,officernote) -- gets ep by name or note
   return
 end
 
-function retep:get_gp_v3(getname,officernote) -- gets gp by name or officernote
+function RetRoll:get_gp_v3(getname,officernote) -- gets gp by name or officernote
   if (officernote) then
     local _,_,gp = string.find(officernote,".*{%d+:(%-?%d+)}.*")
     return tonumber(gp)
@@ -939,106 +937,106 @@ function retep:get_gp_v3(getname,officernote) -- gets gp by name or officernote
   return
 end
 
-function retep:award_raid_ep(ep) -- awards ep to raid members in zone
+function RetRoll:award_raid_ep(ep) -- awards ep to raid members in zone
   if GetNumRaidMembers()>0 then
 	local award = {}
     for i = 1, GetNumRaidMembers(true) do
       local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i)
-      if level >= retep.VARS.minlevel then
+      if level >= RetRoll.VARS.minlevel then
 		local _,mName =  self:givename_ep(name,ep,award)
 		 table.insert (award, mName)
       end
     end
-    self:simpleSay(string.format(L["Giving %d ep to all raidmembers"],ep))
-    self:addToLog(string.format(L["Giving %d ep to all raidmembers"],ep))    
+    self:simpleSay(string.format(L["Giving %d MainStanding to all raidmembers"],ep))
+    self:addToLog(string.format(L["Giving %d MainStanding to all raidmembers"],ep))    
     local addonMsg = string.format("RAID;AWARD;%s",ep)
     self:addonMessage(addonMsg,"RAID")
     self:refreshPRTablets() 
   else UIErrorsFrame:AddMessage(L["You aren't in a raid dummy"],1,0,0)end
 end
-function retep:award_raid_gp(gp) -- awards gp to raid members in zone
+function RetRoll:award_raid_gp(gp) -- awards gp to raid members in zone
   if GetNumRaidMembers()>0 then
 	local award = {}
     for i = 1, GetNumRaidMembers(true) do
       local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i)
-      if level >= retep.VARS.minlevel then
+      if level >= RetRoll.VARS.minlevel then
 		local _,mName =  self:givename_gp(name,gp,award)
 		 table.insert (award, mName)
       end
     end
-    self:simpleSay(string.format(L["Giving %d gp to all raidmembers"],gp))
-    self:addToLog(string.format(L["Giving %d gp to all raidmembers"],gp))    
+    self:simpleSay(string.format(L["Giving %d AuxStanding to all raidmembers"],gp))
+    self:addToLog(string.format(L["Giving %d AuxStanding to all raidmembers"],gp))    
     local addonMsg = string.format("RAID;AWARDGP;%s",gp)
     self:addonMessage(addonMsg,"RAID")
     self:refreshPRTablets() 
   else UIErrorsFrame:AddMessage(L["You aren't in a raid dummy"],1,0,0)end
 end
 
-function retep:award_reserve_ep(ep) -- awards ep to reserve list
-  if table.getn(retep.reserves) > 0 then
+function RetRoll:award_reserve_ep(ep) -- awards ep to reserve list
+  if table.getn(RetRoll.reserves) > 0 then
 	local award = {}
-    for i, reserve in ipairs(retep.reserves) do
+    for i, reserve in ipairs(RetRoll.reserves) do
       local name, class, rank, alt = unpack(reserve)
 		local _,mName =  self:givename_ep(name,ep,award)
 		 table.insert (award, mName)
     end
-    self:simpleSay(string.format(L["Giving %d EP to active reserves"],ep))
-    self:addToLog(string.format(L["Giving %d EP to active reserves"],ep))
+    self:simpleSay(string.format(L["Giving %d MainStanding to active reserves"],ep))
+    self:addToLog(string.format(L["Giving %d MainStanding to active reserves"],ep))
     local addonMsg = string.format("RESERVES;AWARD;%s",ep)
     self:addonMessage(addonMsg,"GUILD")
-    retep.reserves = {}
+    RetRoll.reserves = {}
     reserves_blacklist = {}
     self:refreshPRTablets()
   end
 end
-function retep:givename_ep(getname,ep) 
+function RetRoll:givename_ep(getname,ep) 
 	
- return retep:givename_ep(getname,ep,nil)  
+ return RetRoll:givename_ep(getname,ep,nil)  
 end
-function retep:givename_ep(getname,ep,block) -- awards ep to a single character
+function RetRoll:givename_ep(getname,ep,block) -- awards ep to a single character
   if not (admin()) then return end
   local isPug, playerNameInGuild = self:isPug(getname)
   local postfix, alt = ""
   if isPug then
-    -- Update EP for the level 1 character in the guild
+    -- Update MainStanding for the level 1 character in the guild
     alt = getname
     getname = playerNameInGuild
-    ep = self:num_round(retep_altpercent*ep)
-    postfix = string.format(", %s\'s Pug EP Bank.",alt)
-  elseif (retep_altspool) then
+    ep = self:num_round(RetRoll_altpercent*ep)
+    postfix = string.format(", %s\'s Pug MainStanding Bank.",alt)
+  elseif (RetRollAltspool) then
     local main = self:parseAlt(getname)
     if (main) then
       alt = getname
       getname = main
-      ep = self:num_round(retep_altpercent*ep)
+      ep = self:num_round(RetRoll_altpercent*ep)
       postfix = string.format(L[", %s\'s Main."],alt)
     end
   end
-  if retep:TFind(block, getname) then
+  if RetRoll:TFind(block, getname) then
 		self:debugPrint(string.format("Skipping %s, already awarded.",getname)) 
 		return isPug, getname 
   end
   local old =  (self:get_ep_v3(getname) or 0) 
   local newep = ep +old
   self:update_ep_v3(getname,newep) 
-  self:debugPrint(string.format(L["Giving %d ep to %s%s. (Previous: %d, New: %d)"],ep,getname,postfix,old, newep))
+  self:debugPrint(string.format(L["Giving %d MainStanding to %s%s. (Previous: %d, New: %d)"],ep,getname,postfix,old, newep))
   if ep < 0 then -- inform admins and victim of penalties
-    local msg = string.format(L["%s EP Penalty to %s%s. (Previous: %d, New: %d)"],ep,getname,postfix,old, newep)
+    local msg = string.format(L["%s MainStanding Penalty to %s%s. (Previous: %d, New: %d)"],ep,getname,postfix,old, newep)
     self:adminSay(msg)
     self:addToLog(msg)
-    local addonMsg = string.format("%s;%s;%s",getname,"EP",ep)
+    local addonMsg = string.format("%s;%s;%s",getname,"MainStanding",ep)
     self:addonMessage(addonMsg,"GUILD")
   end  
   return isPug, getname
 end
 
 
-function retep:givename_gp(getname,gp) 
- return retep:givename_gp(getname,gp,nil) 
+function RetRoll:givename_gp(getname,gp) 
+ return RetRoll:givename_gp(getname,gp,nil) 
 end
 
 
-function retep:TFind ( t, e) 
+function RetRoll:TFind ( t, e) 
 if not t then return nil end
     for i, item in ipairs(t) do 
 		if item == e then 
@@ -1048,7 +1046,7 @@ if not t then return nil end
 return nil
 end
 
-function retep:givename_gp(getname,gp,block) -- awards gp to a single character
+function RetRoll:givename_gp(getname,gp,block) -- awards gp to a single character
   if not (admin()) then return end
   local isPug, playerNameInGuild = self:isPug(getname)
   local postfix, alt = ""
@@ -1056,18 +1054,18 @@ function retep:givename_gp(getname,gp,block) -- awards gp to a single character
     -- Update gp for the level 1 character in the guild
     alt = getname
     getname = playerNameInGuild
-    gp = self:num_round(retep_altpercent*gp)
-    postfix = string.format(", %s\'s Pug EP Bank.",alt)
-  elseif (retep_altspool) then
+    gp = self:num_round(RetRoll_altpercent*gp)
+    postfix = string.format(", %s\'s Pug MainStanding Bank.",alt)
+  elseif (RetRollAltspool) then
     local main = self:parseAlt(getname)
     if (main) then
       alt = getname
       getname = main
-      gp = self:num_round(retep_altpercent*gp)
+      gp = self:num_round(RetRoll_altpercent*gp)
       postfix = string.format(L[", %s\'s Main."],alt)
     end
   end 
-	if retep:TFind (block, getname) then
+	if RetRoll:TFind (block, getname) then
 		self:debugPrint(string.format("Skipping %s%s, already awarded.",getname,postfix)) 
 		return isPug, getname
 	end
@@ -1075,86 +1073,86 @@ function retep:givename_gp(getname,gp,block) -- awards gp to a single character
   local old = (self:get_gp_v3(getname) or 0) 
   local newgp = gp + old
   self:update_gp_v3(getname,newgp) 
-  self:debugPrint(string.format(L["Giving %d gp to %s%s. (Previous: %d, New: %d)"],gp,getname,postfix,old, newgp))
+  self:debugPrint(string.format(L["Giving %d AuxStanding to %s%s. (Previous: %d, New: %d)"],gp,getname,postfix,old, newgp))
   if gp < 0 then -- inform admins and victim of penalties
-    local msg = string.format(L["%s GP Penalty to %s%s. (Previous: %d, New: %d)"],gp,getname,postfix,old, newgp)
+    local msg = string.format(L["%s AuxStanding Penalty to %s%s. (Previous: %d, New: %d)"],gp,getname,postfix,old, newgp)
     self:adminSay(msg)
     self:addToLog(msg)
-    local addonMsg = string.format("%s;%s;%s",getname,"GP",gp)
+    local addonMsg = string.format("%s;%s;%s",getname,"AuxStanding",gp)
     self:addonMessage(addonMsg,"GUILD")
   end  
   return isPug, getname
 end
 
 
-function retep:decay_epgp_v3()
+function RetRoll:decay_epgp_v3()
   if not (admin()) then return end
   for i = 1, GetNumGuildMembers(1) do
     local name,_,_,_,class,_,note,officernote,_,_ = GetGuildRosterInfo(i)
     local ep,gp = self:get_ep_v3(name,officernote), self:get_gp_v3(name,officernote)
     if (ep and gp) then
-      ep = self:num_round(ep*retep_decay)
-      gp = self:num_round(gp*retep_decay)
+      ep = self:num_round(ep*RetRoll_decay)
+      gp = self:num_round(gp*RetRoll_decay)
       self:update_epgp_v3(ep,gp,i,name,officernote)
     end
   end
-  local msg = string.format(L["All EP and GP decayed by %s%%"],(1-retep_decay)*100)
+  local msg = string.format(L["All Standing decayed by %s%%"],(1-RetRoll_decay)*100)
   self:simpleSay(msg)
-  if not (retep_saychannel=="OFFICER") then self:adminSay(msg) end
-  local addonMsg = string.format("ALL;DECAY;%s",(1-(retep_decay or retep.VARS.decay))*100)
+  if not (RetRoll_saychannel=="OFFICER") then self:adminSay(msg) end
+  local addonMsg = string.format("ALL;DECAY;%s",(1-(RetRoll_decay or RetRoll.VARS.decay))*100)
   self:addonMessage(addonMsg,"GUILD")
   self:addToLog(msg)
   self:refreshPRTablets() 
 end
 
 
-function retep:gp_reset_v3()
+function RetRoll:gp_reset_v3()
   if (IsGuildLeader()) then
     for i = 1, GetNumGuildMembers(1) do
       local name,_,_,_,class,_,note,officernote,_,_ = GetGuildRosterInfo(i)
       local ep,gp = self:get_ep_v3(name,officernote), self:get_gp_v3(name,officernote)
       if (ep and gp) then
-        self:update_epgp_v3(0,retep.VARS.basegp,i,name,officernote)
+        self:update_epgp_v3(0,RetRoll.VARS.baseAE,i,name,officernote)
       end
     end
-    local msg = L["All EP and GP has been reset to 0/%d."]
-    self:debugPrint(string.format(msg,retep.VARS.basegp))
-    self:adminSay(string.format(msg,retep.VARS.basegp))
-    self:addToLog(string.format(msg,retep.VARS.basegp))
+    local msg = L["All Standing has been reset to 0/%d."]
+    self:debugPrint(string.format(msg,RetRoll.VARS.baseAE))
+    self:adminSay(string.format(msg,RetRoll.VARS.baseAE))
+    self:addToLog(string.format(msg,RetRoll.VARS.baseAE))
   end
 end
 
-function retep:ClearGP_v3()
+function RetRoll:ClearGP_v3()
   if (IsGuildLeader()) then
     for i = 1, GetNumGuildMembers(1) do
       local name,_,_,_,class,_,note,officernote,_,_ = GetGuildRosterInfo(i)
       local ep,gp = self:get_ep_v3(name,officernote), self:get_gp_v3(name,officernote)
       if (ep and gp) then
-        self:update_epgp_v3(ep,retep.VARS.basegp,i,name,officernote)
+        self:update_epgp_v3(ep,RetRoll.VARS.baseAE,i,name,officernote)
       end
     end
-    local msg = L["All GP has been reset to %d."]
-    self:debugPrint(string.format(msg,retep.VARS.basegp))
-    self:adminSay(string.format(msg,retep.VARS.basegp))
-    self:addToLog(string.format(msg,retep.VARS.basegp))
+    local msg = L["All AuxStanding has been reset to %d."]
+    self:debugPrint(string.format(msg,RetRoll.VARS.baseAE))
+    self:adminSay(string.format(msg,RetRoll.VARS.baseAE))
+    self:addToLog(string.format(msg,RetRoll.VARS.baseAE))
   end
 end
 
 
 
-function retep:my_epgp_announce(use_main)
+function RetRoll:my_epgp_announce(use_main)
   local ep,gp
   if (use_main) then
-    ep,gp = (self:get_ep_v3(retep_main) or 0), (self:get_gp_v3(retep_main) or retep.VARS.basegp)
+    ep,gp = (self:get_ep_v3(RetRoll_main) or 0), (self:get_gp_v3(RetRoll_main) or RetRoll.VARS.baseAE)
   else
-    ep,gp = (self:get_ep_v3(self._playerName) or 0), (self:get_gp_v3(self._playerName) or retep.VARS.basegp)
+    ep,gp = (self:get_ep_v3(self._playerName) or 0), (self:get_gp_v3(self._playerName) or RetRoll.VARS.baseAE)
   end
-  local baseRoll = retep:GetBaseRollValue(ep,gp)
-  local msg = string.format(L["You now have: %d EP %d GP + (%d)"], ep,gp,baseRoll)
+  local baseRoll = RetRoll:GetBaseRollValue(ep,gp)
+  local msg = string.format(L["You now have: %d MainStanding %d AuxStanding + (%d)"], ep,gp,baseRoll)
   self:defaultPrint(msg)
 end
 
-function retep:my_epgp(use_main)
+function RetRoll:my_epgp(use_main)
   GuildRoster()
   self:ScheduleEvent("retrollRosterRefresh",self.my_epgp_announce,3,self,use_main)
 end
@@ -1162,15 +1160,15 @@ end
 ---------
 -- Menu
 ---------
-retep.hasIcon = "Interface\\Icons\\INV_Misc_ArmorKit_19"
-retep.title = "retroll"
-retep.defaultMinimapPosition = 180
-retep.defaultPosition = "RIGHT"
-retep.cannotDetachTooltip = true
-retep.tooltipHiddenWhenEmpty = false
-retep.independentProfile = true
+RetRoll.hasIcon = "Interface\\Icons\\INV_Misc_ArmorKit_19"
+RetRoll.title = "retroll"
+RetRoll.defaultMinimapPosition = 180
+RetRoll.defaultPosition = "RIGHT"
+RetRoll.cannotDetachTooltip = true
+RetRoll.tooltipHiddenWhenEmpty = false
+RetRoll.independentProfile = true
 
-function retep:OnTooltipUpdate()
+function RetRoll:OnTooltipUpdate()
   local hint = L["|cffffff00Click|r to toggle Standings.%s \n|cffffff00Right-Click|r for Options."]
   if (admin()) then
     hint = string.format(hint,L[" \n|cffffff00Ctrl+Click|r to toggle Reserves. \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Alt+Click|r to toggle Alts. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."])
@@ -1180,34 +1178,34 @@ function retep:OnTooltipUpdate()
   T:SetHint(hint)
 end
 
-function retep:OnClick()
+function RetRoll:OnClick()
   local is_admin = admin()
   if (IsControlKeyDown() and IsShiftKeyDown() and is_admin) then
-    retep_logs:Toggle()
+    RetRoll_logs:Toggle()
   elseif (IsControlKeyDown() and IsAltKeyDown() and is_admin) then
-    retep_alts:Toggle()
+    RetRollAlts:Toggle()
   elseif (IsControlKeyDown() and is_admin) then
-    retep_reserves:Toggle()
+    RetRoll_reserves:Toggle()
   elseif (IsShiftKeyDown() and is_admin) then
-   -- retep_loot:Toggle()      
+   -- RetRoll_loot:Toggle()      
   elseif (IsAltKeyDown() and is_admin) then
-  --  retep_bids:Toggle()
+  --  RetRoll_bids:Toggle()
   else
-    retep_standings:Toggle()
+    RetRoll_standings:Toggle()
   end
 end
 
-function retep:SetRefresh(flag)
+function RetRoll:SetRefresh(flag)
   needRefresh = flag
   if (flag) then
     self:refreshPRTablets()
   end
 end
 
-function retep:buildRosterTable()
+function RetRoll:buildRosterTable()
   local g, r = { }, { }
   local numGuildMembers = GetNumGuildMembers(1)
-  if (retep_raidonly) and GetNumRaidMembers() > 0 then
+  if (RetRoll_raidonly) and GetNumRaidMembers() > 0 then
     for i = 1, GetNumRaidMembers(true) do
       local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i) 
       if (name) then
@@ -1215,24 +1213,24 @@ function retep:buildRosterTable()
       end
     end
   end
-  retep.alts = {}
+  RetRoll.alts = {}
   for i = 1, numGuildMembers do
     local member_name,_,_,level,class,_,note,officernote,_,_ = GetGuildRosterInfo(i)
     if member_name and member_name ~= "" then
       local main, main_class, main_rank = self:parseAlt(member_name,officernote)
-      local is_raid_level = tonumber(level) and level >= retep.VARS.minlevel
+      local is_raid_level = tonumber(level) and level >= RetRoll.VARS.minlevel
       if (main) then
         if ((self._playerName) and (name == self._playerName)) then
-          if (not retep_main) or (retep_main and retep_main ~= main) then
-            retep_main = main
-            self:defaultPrint(L["Your main has been set to %s"],retep_main)
+          if (not RetRoll_main) or (RetRoll_main and RetRoll_main ~= main) then
+            RetRoll_main = main
+            self:defaultPrint(L["Your main has been set to %s"],RetRoll_main)
           end
         end
         main = C:Colorize(BC:GetHexColor(main_class), main)
-        retep.alts[main] = retep.alts[main] or {}
-        retep.alts[main][member_name] = class
+        RetRoll.alts[main] = RetRoll.alts[main] or {}
+        RetRoll.alts[main][member_name] = class
       end
-      if (retep_raidonly) and next(r) then
+      if (RetRoll_raidonly) and next(r) then
         if r[member_name] and is_raid_level then
           table.insert(g,{["name"]=member_name,["class"]=class})
         end
@@ -1246,13 +1244,13 @@ function retep:buildRosterTable()
   return g
 end
 
-function retep:buildClassMemberTable(roster,epgp)
+function RetRoll:buildClassMemberTable(roster,epgp)
   local desc,usage
-  if epgp == "ep" then
-    desc = L["Account EPs to %s."]
+  if epgp == "MainStanding" then
+    desc = L["Account MainStanding to %s."]
     usage = "<EP>"
-  elseif epgp == "gp" then
-    desc = L["Account GPs to %s."]
+  elseif epgp == "AuxStanding" then
+    desc = L["Account AuxStanding to %s."]
     usage = "<GP>"
   end
   local c = { }
@@ -1272,14 +1270,14 @@ function retep:buildClassMemberTable(roster,epgp)
       c[class].args[name].name = name
       c[class].args[name].desc = string.format(desc,name)
       c[class].args[name].usage = usage
-      if epgp == "ep" then
-        c[class].args[name].get = "suggestedAwardEP"
-        c[class].args[name].set = function(v) retep:givename_ep(name, tonumber(v)) retep:refreshPRTablets() end
-      elseif epgp == "gp" then
+      if epgp == "MainStanding" then
+        c[class].args[name].get = "suggestedAwardMainStanding"
+        c[class].args[name].set = function(v) RetRoll:givename_ep(name, tonumber(v)) RetRoll:refreshPRTablets() end
+      elseif epgp == "AuxStanding" then
         c[class].args[name].get = false
-        c[class].args[name].set = function(v) retep:givename_gp(name, tonumber(v)) retep:refreshPRTablets() end
+        c[class].args[name].set = function(v) RetRoll:givename_gp(name, tonumber(v)) RetRoll:refreshPRTablets() end
       end
-      c[class].args[name].validate = function(v) return (type(v) == "number" or tonumber(v)) and tonumber(v) < retep.VARS.max end
+      c[class].args[name].validate = function(v) return (type(v) == "number" or tonumber(v)) and tonumber(v) < RetRoll.VARS.max end
     end
   end
   return c
@@ -1288,7 +1286,7 @@ end
 ---------------
 -- Alts
 ---------------
-function retep:parseAlt(name,officernote)
+function RetRoll:parseAlt(name,officernote)
   if (officernote) then
     local _,_,_,main,_ = string.find(officernote or "","(.*){([%a][%a]%a*)}(.*)")
     if type(main)=="string" and (string.len(main) < 13) then
@@ -1317,24 +1315,24 @@ end
 ---------------
 -- Reserves
 ---------------
-function retep:reservesToggle(flag)
-  local reservesChannelID = tonumber((GetChannelName(retep_reservechannel)))
+function RetRoll:reservesToggle(flag)
+  local reservesChannelID = tonumber((GetChannelName(RetRoll_reservechannel)))
   if (flag) then -- we want in
     if (reservesChannelID) and reservesChannelID ~= 0 then
-      retep.reservesChannelID = reservesChannelID
+      RetRoll.reservesChannelID = reservesChannelID
       if not self:IsEventRegistered("CHAT_MSG_CHANNEL") then
         self:RegisterEvent("CHAT_MSG_CHANNEL","captureReserveChatter")
       end
       return true
     else
       self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE","reservesChannelChange")
-      JoinChannelByName(retep_reservechannel)
+      JoinChannelByName(RetRoll_reservechannel)
       return
     end
   else -- we want out
     if (reservesChannelID) and reservesChannelID ~= 0 then
       self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE","reservesChannelChange")
-      LeaveChannelByName(retep_reservechannel)
+      LeaveChannelByName(RetRoll_reservechannel)
       return
     else
       if self:IsEventRegistered("CHAT_MSG_CHANNEL") then
@@ -1345,14 +1343,14 @@ function retep:reservesToggle(flag)
   end
 end
 
-function retep:reservesChannelChange(msg,_,_,_,_,_,_,_,channel)
-  if (msg) and (channel) and (channel == retep_reservechannel) then
+function RetRoll:reservesChannelChange(msg,_,_,_,_,_,_,_,channel)
+  if (msg) and (channel) and (channel == RetRoll_reservechannel) then
     if msg == "YOU_JOINED" then
-      retep.reservesChannelID = tonumber((GetChannelName(retep_reservechannel)))
-      RemoveChatWindowChannel(DEFAULT_CHAT_FRAME:GetID(), retep_reservechannel)
+      RetRoll.reservesChannelID = tonumber((GetChannelName(RetRoll_reservechannel)))
+      RemoveChatWindowChannel(DEFAULT_CHAT_FRAME:GetID(), RetRoll_reservechannel)
       self:RegisterEvent("CHAT_MSG_CHANNEL","captureReserveChatter")
     elseif msg == "YOU_LEFT" then
-      retep.reservesChannelID = nil 
+      RetRoll.reservesChannelID = nil 
       if self:IsEventRegistered("CHAT_MSG_CHANNEL") then
         self:UnregisterEvent("CHAT_MSG_CHANNEL")
       end
@@ -1362,35 +1360,35 @@ function retep:reservesChannelChange(msg,_,_,_,_,_,_,_,channel)
   end
 end
 
-function retep:afkcheck_reserves()
+function RetRoll:afkcheck_reserves()
   if (running_check) then return end
-  if retep.reservesChannelID ~= nil and ((GetChannelName(retep.reservesChannelID)) == retep.reservesChannelID) then
+  if RetRoll.reservesChannelID ~= nil and ((GetChannelName(RetRoll.reservesChannelID)) == RetRoll.reservesChannelID) then
     reserves_blacklist = {}
-    retep.reserves = {}
+    RetRoll.reserves = {}
     running_check = true
-    retep.timer.count_down = retep.VARS.timeout
-    retep.timer:Show()
-    SendChatMessage(retep.VARS.reservecall,"CHANNEL",nil,retep.reservesChannelID)
-    retep_reserves:Toggle(true)
+    RetRoll.timer.count_down = RetRoll.VARS.timeout
+    RetRoll.timer:Show()
+    SendChatMessage(RetRoll.VARS.reservecall,"CHANNEL",nil,RetRoll.reservesChannelID)
+    RetRoll_reserves:Toggle(true)
   end
 end
 
-function retep:sendReserverResponce()
-  if retep.reservesChannelID ~= nil then
-    if (retep_main) then
-      if retep_main == self._playerName then
-        SendChatMessage("+","CHANNEL",nil,retep.reservesChannelID)
+function RetRoll:sendReserverResponce()
+  if RetRoll.reservesChannelID ~= nil then
+    if (RetRoll_main) then
+      if RetRoll_main == self._playerName then
+        SendChatMessage("+","CHANNEL",nil,RetRoll.reservesChannelID)
       else
-        SendChatMessage(string.format("+%s",retep_main),"CHANNEL",nil,retep.reservesChannelID)
+        SendChatMessage(string.format("+%s",RetRoll_main),"CHANNEL",nil,RetRoll.reservesChannelID)
       end
     end
   end
 end
 
-function retep:captureReserveChatter(text, sender, _, _, _, _, _, _, channel)
-  if not (channel) or not (channel == retep_reservechannel) then return end
+function RetRoll:captureReserveChatter(text, sender, _, _, _, _, _, _, channel)
+  if not (channel) or not (channel == RetRoll_reservechannel) then return end
   local reserve, reserve_class, reserve_rank, reserve_alt = nil,nil,nil,nil
-  local r,_,rdy,name = string.find(text,retep.VARS.reserveanswer)
+  local r,_,rdy,name = string.find(text,RetRoll.VARS.reserveanswer)
   if (r) and (running_check) then
     if (rdy) then
       if (name) and (name ~= "") then
@@ -1409,14 +1407,14 @@ function retep:captureReserveChatter(text, sender, _, _, _, _, _, _, channel)
         if reserve_alt then
           if not reserves_blacklist[reserve_alt] then
             reserves_blacklist[reserve_alt] = true
-            table.insert(retep.reserves,{reserve,reserve_class,reserve_rank,reserve_alt})
+            table.insert(RetRoll.reserves,{reserve,reserve_class,reserve_rank,reserve_alt})
           else
             self:defaultPrint(string.format(L["|cffff0000%s|r trying to add %s to Reserves, but has already added a member. Discarding!"],reserve_alt,reserve))
           end
         else
           if not reserves_blacklist[reserve] then
             reserves_blacklist[reserve] = true
-            table.insert(retep.reserves,{reserve,reserve_class,reserve_rank})
+            table.insert(RetRoll.reserves,{reserve,reserve_class,reserve_rank})
           else
             self:defaultPrint(string.format(L["|cffff0000%s|r has already been added to Reserves. Discarding!"],reserve))
           end
@@ -1436,11 +1434,11 @@ end
 ------------
 -- Logging
 ------------
-function retep:addToLog(line,skipTime)
-  local over = table.getn(retep_log)-retep.VARS.maxloglines+1
+function RetRoll:addToLog(line,skipTime)
+  local over = table.getn(RetRoll_log)-RetRoll.VARS.maxloglines+1
   if over > 0 then
     for i=1,over do
-      table.remove(retep_log,1)
+      table.remove(RetRoll_log,1)
     end
   end
   local timestamp
@@ -1449,35 +1447,35 @@ function retep:addToLog(line,skipTime)
   else
     timestamp = date("%b/%d %H:%M:%S")
   end
-  table.insert(retep_log,{timestamp,line})
+  table.insert(RetRoll_log,{timestamp,line})
 end
 
 ------------
 -- Utility 
 ------------
-function retep:num_round(i)
+function RetRoll:num_round(i)
   return math.floor(i+0.5)
 end
 
-function retep:strsplit(delimiter, subject)
+function RetRoll:strsplit(delimiter, subject)
   local delimiter, fields = delimiter or ":", {}
   local pattern = string.format("([^%s]+)", delimiter)
   string.gsub(subject, pattern, function(c) fields[table.getn(fields)+1] = c end)
   return unpack(fields)
 end
 
-function retep:strsplitT(delimiter, subject)
- local tbl = {retep:strsplit(delimiter, subject)}
+function RetRoll:strsplitT(delimiter, subject)
+ local tbl = {RetRoll:strsplit(delimiter, subject)}
  return tbl
 end
 
- function retep:verifyGuildMember(name,silent)
-	retep:verifyGuildMember(name,silent,false)
+ function RetRoll:verifyGuildMember(name,silent)
+	RetRoll:verifyGuildMember(name,silent,false)
  end
-function retep:verifyGuildMember(name,silent,ignorelevel)
+function RetRoll:verifyGuildMember(name,silent,ignorelevel)
   for i=1,GetNumGuildMembers(1) do
     local g_name, g_rank, g_rankIndex, g_level, g_class, g_zone, g_note, g_officernote, g_online = GetGuildRosterInfo(i)
-    if (string.lower(name) == string.lower(g_name)) and (ignorelevel or tonumber(g_level) >= retep.VARS.minlevel) then 
+    if (string.lower(name) == string.lower(g_name)) and (ignorelevel or tonumber(g_level) >= RetRoll.VARS.minlevel) then 
     -- == MAX_PLAYER_LEVEL]]
       return g_name, g_class, g_rank, g_officernote
     end
@@ -1488,7 +1486,7 @@ function retep:verifyGuildMember(name,silent,ignorelevel)
   return
 end
 
-function retep:inRaid(name)
+function RetRoll:inRaid(name)
   for i=1,GetNumRaidMembers() do
     if name == (UnitName(raidUnit[i])) then
       return true
@@ -1497,7 +1495,7 @@ function retep:inRaid(name)
   return false
 end
 
-function retep:lootMaster()
+function RetRoll:lootMaster()
   local method, lootmasterID = GetLootMethod()
   if method == "master" and lootmasterID == 0 then
     return true
@@ -1506,15 +1504,15 @@ function retep:lootMaster()
   end
 end
 
-function retep:testMain()
-  if (retep_main == nil) or (retep_main == "") then
+function RetRoll:testMain()
+  if (RetRoll_main == nil) or (RetRoll_main == "") then
     if (IsInGuild()) then
       StaticPopup_Show("RET_EP_SET_MAIN")
     end
   end
 end
 
-function retep:make_escable(framename,operation)
+function RetRoll:make_escable(framename,operation)
   local found
   for i,f in ipairs(UISpecialFrames) do
     if f==framename then
@@ -1535,9 +1533,9 @@ local zone_multipliers = {
   ["T2"] =   {["T3"]=1,["T2.5"]=1,   ["T2"]=1,  ["T1.5"]=0.5, ["T1"]=0.5},
   ["T1"] =   {["T3"]=1,["T2.5"]=1,   ["T2"]=1,  ["T1.5"]=1,   ["T1"]=1}
 }
-function retep:suggestedAwardEP()
+function RetRoll:suggestedAwardEP()
 
-return retep.VARS.baseaward_ep
+return RetRoll.VARS.baseawardpoints
 -- local currentTier, zoneEN, zoneLoc, checkTier, multiplier
 -- local inInstance, instanceType = IsInInstance()
 -- if (inInstance == nil) or (instanceType ~= nil and instanceType == "none") then
@@ -1554,19 +1552,19 @@ return retep.VARS.baseaward_ep
 --   end
 -- end
 -- if not currentTier then 
---   return retep.VARS.baseaward_ep
+--   return RetRoll.VARS.baseawardpoints
 -- else
---   multiplier = zone_multipliers[retep_progress][currentTier]
+--   multiplier = zone_multipliers[RetRoll_progress][currentTier]
 -- end
 -- if (multiplier) then
---   return multiplier*retep.VARS.baseaward_ep
+--   return multiplier*RetRoll.VARS.baseawardpoints
 -- else
---   return retep.VARS.baseaward_ep
+--   return RetRoll.VARS.baseawardpoints
 -- end
 end
-function retep:suggestedAwardGP()
+function RetRoll:suggestedAwardGP()
 
-return retep.VARS.baseaward_ep
+return RetRoll.VARS.baseawardpoints
 -- local currentTier, zoneEN, zoneLoc, checkTier, multiplier
 -- local inInstance, instanceType = IsInInstance()
 -- if (inInstance == nil) or (instanceType ~= nil and instanceType == "none") then
@@ -1583,20 +1581,20 @@ return retep.VARS.baseaward_ep
 --   end
 -- end
 -- if not currentTier then 
---   return retep.VARS.baseaward_ep
+--   return RetRoll.VARS.baseawardpoints
 -- else
---   multiplier = zone_multipliers[retep_progress][currentTier]
+--   multiplier = zone_multipliers[RetRoll_progress][currentTier]
 -- end
 -- if (multiplier) then
---   return multiplier*retep.VARS.baseaward_ep
+--   return multiplier*RetRoll.VARS.baseawardpoints
 -- else
---   return retep.VARS.baseaward_ep
+--   return RetRoll.VARS.baseawardpoints
 -- end
 end
-function retep:parseVersion(version,otherVersion)
+function RetRoll:parseVersion(version,otherVersion)
 	if   version then  
-  if not retep._version then
-      retep._version = {  
+  if not RetRoll._version then
+      RetRoll._version = {  
 		major = 0,
 		minor = 0,
 		patch = 0
@@ -1604,41 +1602,41 @@ function retep:parseVersion(version,otherVersion)
   
   end
   for major,minor,patch in string.gfind(version,"(%d+)[^%d]?(%d*)[^%d]?(%d*)") do
-    retep._version.major = tonumber(major)
-    retep._version.minor = tonumber(minor)
-    retep._version.patch = tonumber(patch)
+    RetRoll._version.major = tonumber(major)
+    RetRoll._version.minor = tonumber(minor)
+    RetRoll._version.patch = tonumber(patch)
   end
   end
   if (otherVersion) then
-    if not retep._otherversion then retep._otherversion = {} end
+    if not RetRoll._otherversion then RetRoll._otherversion = {} end
     for major,minor,patch in string.gfind(otherVersion,"(%d+)[^%d]?(%d*)[^%d]?(%d*)") do
-      retep._otherversion.major = tonumber(major)
-      retep._otherversion.minor = tonumber(minor)
-      retep._otherversion.patch = tonumber(patch)      
+      RetRoll._otherversion.major = tonumber(major)
+      RetRoll._otherversion.minor = tonumber(minor)
+      RetRoll._otherversion.patch = tonumber(patch)      
     end
-    if (retep._otherversion.major ~= nil and retep._version ~= nil and retep._version.major ~= nil) then
-      if (retep._otherversion.major < retep._version.major) then -- we are newer
+    if (RetRoll._otherversion.major ~= nil and RetRoll._version ~= nil and RetRoll._version.major ~= nil) then
+      if (RetRoll._otherversion.major < RetRoll._version.major) then -- we are newer
         return
-      elseif (retep._otherversion.major > retep._version.major) then -- they are newer
+      elseif (RetRoll._otherversion.major > RetRoll._version.major) then -- they are newer
         return true, "major"        
       else -- tied on major, go minor
-        if (retep._otherversion.minor ~= nil and retep._version.minor ~= nil) then
-          if (retep._otherversion.minor < retep._version.minor) then -- we are newer
+        if (RetRoll._otherversion.minor ~= nil and RetRoll._version.minor ~= nil) then
+          if (RetRoll._otherversion.minor < RetRoll._version.minor) then -- we are newer
             return
-          elseif (retep._otherversion.minor > retep._version.minor) then -- they are newer
+          elseif (RetRoll._otherversion.minor > RetRoll._version.minor) then -- they are newer
             return true, "minor"
           else -- tied on minor, go patch
-            if (retep._otherversion.patch ~= nil and retep._version.patch ~= nil) then
-              if (retep._otherversion.patch < retep._version.patch) then -- we are newer
+            if (RetRoll._otherversion.patch ~= nil and RetRoll._version.patch ~= nil) then
+              if (RetRoll._otherversion.patch < RetRoll._version.patch) then -- we are newer
                 return
-              elseif (retep._otherversion.patch > retep._version.patch) then -- they are newwer
+              elseif (RetRoll._otherversion.patch > RetRoll._version.patch) then -- they are newwer
                 return true, "patch"
               end
-            elseif (retep._otherversion.patch ~= nil and retep._version.patch == nil) then -- they are newer
+            elseif (RetRoll._otherversion.patch ~= nil and RetRoll._version.patch == nil) then -- they are newer
               return true, "patch"
             end
           end    
-        elseif (retep._otherversion.minor ~= nil and retep._version.minor == nil) then -- they are newer
+        elseif (RetRoll._otherversion.minor ~= nil and RetRoll._version.minor == nil) then -- they are newer
           return true, "minor"
         end
       end
@@ -1647,7 +1645,7 @@ function retep:parseVersion(version,otherVersion)
  
 end
 
-function retep:camelCase(word)
+function RetRoll:camelCase(word)
   return string.gsub(word,"(%a)([%w_']*)",function(head,tail) 
     return string.format("%s%s",string.upper(head),string.lower(tail)) 
     end)
@@ -1670,18 +1668,18 @@ end
 -------------
 
 StaticPopupDialogs["RET_EP_SET_MAIN"] = {
-  text = L["Set your main to be able to participate in Reserve List EPGP Checks."],
+  text = L["Set your main to be able to participate in Reserve List Standing Checks."],
   button1 = TEXT(ACCEPT),
   button2 = TEXT(CANCEL),
   hasEditBox = 1,
   maxLetters = 12,
   OnAccept = function()
     local editBox = getglobal(this:GetParent():GetName().."EditBox")
-    local name = retep:camelCase(editBox:GetText())
-    retep_main = retep:verifyGuildMember(name)
+    local name = RetRoll:camelCase(editBox:GetText())
+    RetRoll_main = RetRoll:verifyGuildMember(name)
   end,
   OnShow = function()
-    getglobal(this:GetName().."EditBox"):SetText(retep_main or "")
+    getglobal(this:GetName().."EditBox"):SetText(RetRoll_main or "")
     getglobal(this:GetName().."EditBox"):SetFocus()
   end,
   OnHide = function()
@@ -1692,7 +1690,7 @@ StaticPopupDialogs["RET_EP_SET_MAIN"] = {
   end,
   EditBoxOnEnterPressed = function()
     local editBox = getglobal(this:GetParent():GetName().."EditBox")
-    retep_main = retep:verifyGuildMember(editBox:GetText())
+    RetRoll_main = RetRoll:verifyGuildMember(editBox:GetText())
     this:GetParent():Hide()
   end,
   EditBoxOnEscapePressed = function()
@@ -1708,7 +1706,7 @@ StaticPopupDialogs["RET_EP_RESERVE_AFKCHECK_RESPONCE"] = {
   button1 = TEXT(YES),
   button2 = TEXT(NO),
   OnShow = function()
-    this._timeout = retep.VARS.timeout-1
+    this._timeout = RetRoll.VARS.timeout-1
   end,
   OnUpdate = function(elapsed,dialog)
     this._timeout = this._timeout - elapsed
@@ -1720,20 +1718,20 @@ StaticPopupDialogs["RET_EP_RESERVE_AFKCHECK_RESPONCE"] = {
   end,
   OnAccept = function()
     this._timeout = 0
-    retep:sendReserverResponce()
+    RetRoll:sendReserverResponce()
   end,
-  timeout = 0,--retep.VARS.timeout,
+  timeout = 0,--RetRoll.VARS.timeout,
   exclusive = 1,
   showAlert = 1,
   whileDead = 1,
   hideOnEscape = 1  
 }
 StaticPopupDialogs["RET_EP_CONFIRM_RESET"] = {
-  text = L["|cffff0000Are you sure you want to Reset ALL EPGP?|r"],
+  text = L["|cffff0000Are you sure you want to Reset ALL Standing?|r"],
   button1 = TEXT(OKAY),
   button2 = TEXT(CANCEL),
   OnAccept = function()
-    retep:gp_reset_v3()
+    RetRoll:gp_reset_v3()
   end,
   timeout = 0,
   whileDead = 1,
@@ -1742,11 +1740,11 @@ StaticPopupDialogs["RET_EP_CONFIRM_RESET"] = {
   hideOnEscape = 1
 }
 StaticPopupDialogs["RET_GP_CONFIRM_RESET"] = {
-  text = L["|cffff0000Are you sure you want to Reset ALL GP?|r"],
+  text = L["|cffff0000Are you sure you want to Reset ALL AuxStanding?|r"],
   button1 = TEXT(OKAY),
   button2 = TEXT(CANCEL),
   OnAccept = function()
-    retep:ClearGP_v3()
+    RetRoll:ClearGP_v3()
   end,
   timeout = 0,
   whileDead = 1,
@@ -1756,7 +1754,7 @@ StaticPopupDialogs["RET_GP_CONFIRM_RESET"] = {
 }
 
 
-function retep:EasyMenu_Initialize(level, menuList)
+function RetRoll:EasyMenu_Initialize(level, menuList)
   for i, info in ipairs(menuList) do
     if (info.text) then
       info.index = i
@@ -1764,39 +1762,39 @@ function retep:EasyMenu_Initialize(level, menuList)
     end
   end
 end
-function retep:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode, level)
+function RetRoll:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode, level)
   if ( displayMode == "MENU" ) then
     menuFrame.displayMode = displayMode
   end
-  UIDropDownMenu_Initialize(menuFrame, function() retep:EasyMenu_Initialize(level, menuList) end, displayMode, level)
+  UIDropDownMenu_Initialize(menuFrame, function() RetRoll:EasyMenu_Initialize(level, menuList) end, displayMode, level)
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
-function retep:GetRollingGP(gp)
+function RetRoll:GetRollingGP(gp)
 
-    return math.max(-1 * retep.VARS.dpRollCap , math.min(retep.VARS.dpRollCap,gp) )
+    return math.max(-1 * RetRoll.VARS.AERollCap , math.min(RetRoll.VARS.AERollCap,gp) )
 end
-function retep:GetBaseRollValue(ep,gp)
+function RetRoll:GetBaseRollValue(ep,gp)
 
-    return  ep + retep:GetRollingGP(gp)
+    return  ep + RetRoll:GetRollingGP(gp)
 
 end
 
-function retep:RollCommand(isSRRoll,isDSRRoll,bonus)
+function RetRoll:RollCommand(isSRRoll,isDSRRoll,bonus)
   local playerName = UnitName("player")
   local ep = 0 
   local gp = 0
   local desc = ""  
-  local hostG= retep:GetGuildName()
+  local hostG= RetRoll:GetGuildName()
 	if (IsPugInHostedRaid()) then
-		hostG = retep.VARS.HostGuildName
-		local key = retep:GetGuildKey(retep.VARS.HostGuildName)
-		if retep_pugCache[key] and retep_pugCache[key][playerName] then
+		hostG = RetRoll.VARS.HostGuildName
+		local key = RetRoll:GetGuildKey(RetRoll.VARS.HostGuildName)
+		if RetRoll_pugCache[key] and RetRoll_pugCache[key][playerName] then
 		-- Player is a Pug, use stored EP
-			ep = retep_pugCache[key][playerName][1] 
+			ep = RetRoll_pugCache[key][playerName][1] 
 			
 			
-			gp = retep_pugCache[key][playerName][2]
-			local inguildn = retep_pugCache[key][playerName][3] or ""
+			gp = RetRoll_pugCache[key][playerName][2]
+			local inguildn = RetRoll_pugCache[key][playerName][3] or ""
 			desc = string.format("PUG(%s)",inguildn)
 		else
 			ep = 0
@@ -1804,7 +1802,7 @@ function retep:RollCommand(isSRRoll,isDSRRoll,bonus)
 			desc = "Unregistered PUG"
 		end
 	  -- Check if the player is an alt
-	elseif retep_altspool then
+	elseif RetRollAltspool then
 		local main = self:parseAlt(playerName)
 		if main then
 		  -- If the player is an alt, use the main's EP
@@ -1826,7 +1824,7 @@ function retep:RollCommand(isSRRoll,isDSRRoll,bonus)
   
   -- Calculate the roll range based on whether it's an SR roll or not
   local minRoll, maxRoll
-  local baseRoll = retep:GetBaseRollValue(ep,gp)
+  local baseRoll = RetRoll:GetBaseRollValue(ep,gp)
   if isSRRoll then
     minRoll = 101 + baseRoll
     maxRoll = 200 + baseRoll
@@ -1842,22 +1840,22 @@ function retep:RollCommand(isSRRoll,isDSRRoll,bonus)
   maxRoll = maxRoll + bonus
 
   RandomRoll(minRoll, maxRoll)
-  local cappedGP =  retep:GetRollingGP(gp)
+  local cappedGP =  RetRoll:GetRollingGP(gp)
   -- Prepare the announcement message
   local bonusText = " as "..desc.." of "..hostG
-  local message = string.format("I rolled %d - %d with %d EP +%d GP (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp,  bonusText)
+  local message = string.format("I rolled %d - %d with %d MainStanding +%d AuxStanding (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp,  bonusText)
 
   if(isSRRoll) then
-    message = string.format("I rolled SR %d - %d with %d EP +%d GP (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp, bonusText)
+    message = string.format("I rolled SR %d - %d with %d MainStanding +%d AuxStanding (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp, bonusText)
   end
   if(isDSRRoll) then
-    message = string.format("I rolled Double SR %d - %d with %d EP +%d GP (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp, bonusText)
+    message = string.format("I rolled Double SR %d - %d with %d MainStanding +%d AuxStanding (%d)%s", minRoll, maxRoll, ep ,cappedGP, gp, bonusText)
   end
 
   if bonus > 0 then
     local weeks = math.floor(bonus / 20)
     bonusText = string.format(" +%d for %d weeks", bonus, weeks)..bonusText
-    message = string.format("I rolled Cumulative SR %d - %d with %d EP +%d(%dGP)%s", minRoll, maxRoll, ep ,cappedGP, gp, bonusText)
+    message = string.format("I rolled Cumulative SR %d - %d with %d MainStanding +%d(%dGP)%s", minRoll, maxRoll, ep ,cappedGP, gp, bonusText)
   end
   -- Determine the chat channel
   local chatType = UnitInRaid("player") and "RAID" or "SAY"
@@ -1865,7 +1863,7 @@ function retep:RollCommand(isSRRoll,isDSRRoll,bonus)
   -- Send the message
   SendChatMessage(message, chatType)
 end
-function retep:isPug(name)
+function RetRoll:isPug(name)
   for i = 1, GetNumGuildMembers(1) do
     local guildMemberName, _, _, _, _, _, _, officerNote = GetGuildRosterInfo(i)
  
@@ -1878,7 +1876,7 @@ function retep:isPug(name)
   end
   return false
 end
-function retep:isBank(name)
+function RetRoll:isBank(name)
   for i = 1, GetNumGuildMembers(1) do
     local guildMemberName, _, _, _, _, _, _, officerNote = GetGuildRosterInfo(i)
 	
@@ -1895,22 +1893,22 @@ function retep:isBank(name)
   return false
 end
 
-function retep:CheckPugEP()
+function RetRoll:CheckPugStanding()
   local playerName = UnitName("player")
   local foundEP = false
   
-  for guildName, guildData in pairs(retep_pugCache) do
+  for guildName, guildData in pairs(RetRoll_pugCache) do
     if guildData[playerName] then
-      self:defaultPrint(string.format("Your EP for %s: %d , %d", guildName, guildData[playerName][1],guildData[playerName][2]))
+      self:defaultPrint(string.format("Your MainStanding for %s: %d , %d", guildName, guildData[playerName][1],guildData[playerName][2]))
       foundEP = true
     end
   end
   
   if not foundEP then
-    self:defaultPrint("No EP found for " .. playerName .. " in any guild")
+    self:defaultPrint("No MainStanding found for " .. playerName .. " in any guild")
   end
 end
-function retep:getAllPugs()
+function RetRoll:getAllPugs()
   local pugs = {}
   for i = 1, GetNumGuildMembers(1) do
     local guildMemberName, _, _, guildMemberLevel, _, _, _, officerNote = GetGuildRosterInfo(i)
@@ -1923,7 +1921,7 @@ function retep:getAllPugs()
   end
   return pugs
 end
-function retep:updateAllPugEP( force )
+function RetRoll:updateAllPugStanding( force )
   if not admin() and not force then
     self:defaultPrint("You don't have permission to perform this action.")
     return
@@ -1934,7 +1932,7 @@ function retep:updateAllPugEP( force )
   local packet={}
   local pi = 0
   for guildMemberName, pugName in pairs(pugs) do
-	if retep:inRaid(pugName) then
+	if RetRoll:inRaid(pugName) then
 		local ep = self:get_ep_v3(guildMemberName) or 0
 		local gp = self:get_gp_v3(guildMemberName) or 0
 		table.insert(packet,pugName..":"..guildMemberName..":"..ep..":"..gp)
@@ -1954,11 +1952,11 @@ function retep:updateAllPugEP( force )
 		packet={}
 		pi = 0
 	end
-  self:defaultPrint(string.format("Updated EP for %d Pug player(s)", count))
+  self:defaultPrint(string.format("Updated MainStanding for %d Pug player(s)", count))
 end
 
 
-function retep:getPugName(name)
+function RetRoll:getPugName(name)
   for i = 1, GetNumGuildMembers(1) do
       local guildMemberName, _, _, _, _, _, _, officerNote = GetGuildRosterInfo(i)
       if guildMemberName == name then
@@ -1971,7 +1969,7 @@ end
 
  
 
-function retep:UpdateHostInfo()
+function RetRoll:UpdateHostInfo()
  
 	
 	local ownGuild =(GetGuildInfo("player"))
@@ -1982,35 +1980,35 @@ function retep:UpdateHostInfo()
         if not inRaid then 
             inRaid = true
         end
-		local _ ,raidlead = retep:GetRaidLeader()
-		if (retep.VARS.HostLeadName ~= raidlead ) then --raid leadership changed or new raid
+		local _ ,raidlead = RetRoll:GetRaidLeader()
+		if (RetRoll.VARS.HostLeadName ~= raidlead ) then --raid leadership changed or new raid
 			
-			if retep.VARS.HostLeadName ~= "!" then
+			if RetRoll.VARS.HostLeadName ~= "!" then
 			--leadership changed
 			
 				if raidlead == playerName then
-					RetEPMSG:DBGMSG("Leadership assigned to you, Sending host info")
-					retep.VARS.HostGuildName =  ownGuild 
-					retep.VARS.HostLeadName = playerName
-					retep:SendHostInfoUpdate(nil)
+					RetRollMSG:DBGMSG("Leadership assigned to you, Sending host info")
+					RetRoll.VARS.HostGuildName =  ownGuild 
+					RetRoll.VARS.HostLeadName = playerName
+					RetRoll:SendHostInfoUpdate(nil)
 				else
-					RetEPMSG:DBGMSG("Leadership changed, requesting host info")
-					retep.VARS.HostGuildName = "!"
-					retep.VARS.HostLeadName ="!"
-					retep:RequestHostInfo()
+					RetRollMSG:DBGMSG("Leadership changed, requesting host info")
+					RetRoll.VARS.HostGuildName = "!"
+					RetRoll.VARS.HostLeadName ="!"
+					RetRoll:RequestHostInfo()
 				end
 
 			else
 			
 				if raidlead == UnitName("player") then
-					RetEPMSG:DBGMSG("Raid Created, Sending host info")
-					retep.VARS.HostGuildName =  ownGuild 
-					retep.VARS.HostLeadName = playerName
-					retep:SendHostInfoUpdate(nil)
+					RetRollMSG:DBGMSG("Raid Created, Sending host info")
+					RetRoll.VARS.HostGuildName =  ownGuild 
+					RetRoll.VARS.HostLeadName = playerName
+					RetRoll:SendHostInfoUpdate(nil)
 
 				else
-					RetEPMSG:DBGMSG("Joined Raid, requesting host info")
-					retep:RequestHostInfo()
+					RetRollMSG:DBGMSG("Joined Raid, requesting host info")
+					RetRoll:RequestHostInfo()
 				end
 				
 				
@@ -2019,31 +2017,31 @@ function retep:UpdateHostInfo()
   
 	else -- we left raid
     if inRaid then
-		RetEPMSG:DBGMSG("Leaving Raid")
+		RetRollMSG:DBGMSG("Leaving Raid")
         inRaid = false
     end
-		retep.VARS.HostGuildName = "!"
-		retep.VARS.HostLeadName ="!"
+		RetRoll.VARS.HostGuildName = "!"
+		RetRoll.VARS.HostLeadName ="!"
 	end 
 
  
 end
 
-function retep:GetGuildName()
+function RetRoll:GetGuildName()
 	local guildName, _, _ = GetGuildInfo("player")
 	return guildName
 end
 
 
 function IsPugInHostedRaid()
-	local GuildName = retep:GetGuildName()
+	local GuildName = RetRoll:GetGuildName()
 	
-	--DEFAULT_CHAT_FRAME:AddMessage("GuildName "..GuildName.." retep.VARS.HostGuildName " .. retep.VARS.HostGuildName  )
+	--DEFAULT_CHAT_FRAME:AddMessage("GuildName "..GuildName.." RetRoll.VARS.HostGuildName " .. RetRoll.VARS.HostGuildName  )
 	
-	return GuildName =="" or retep.VARS.HostGuildName ~="!" and retep.VARS.HostGuildName ~= GuildName
+	return GuildName =="" or RetRoll.VARS.HostGuildName ~="!" and RetRoll.VARS.HostGuildName ~= GuildName
 end
  
-function retep:GetRaidLeader()
+function RetRoll:GetRaidLeader()
 for i = 1, GetNumRaidMembers() do
 	local name, rank, _, _, _, _, _, online  = GetRaidRosterInfo(i);
 	if (rank == 2) then return i,name,online end
@@ -2051,9 +2049,9 @@ end
 	return ""
 end
 
-function retep:GetRaidLeadGuild() 
+function RetRoll:GetRaidLeadGuild() 
 	local guildName = nil
-    local index,name,online = retep:GetRaidLeader()
+    local index,name,online = RetRoll:GetRaidLeader()
 	
 	if UnitExists("raid"..index) then
 		 
@@ -2071,7 +2069,7 @@ function retep:GetRaidLeadGuild()
 
 end
  
-function retep:GetGuildKey(g) 
+function RetRoll:GetGuildKey(g) 
 	return (string.gsub(g ," ",""))
 end
  
@@ -2079,9 +2077,9 @@ end
 local lastHostInfoDispatch = 0
 local HostInfoRequestsSinceLastDispatch = 0
 
-function retep:SendHostInfoUpdate( member , epgp)
+function RetRoll:SendHostInfoUpdate( member , epgp)
 
-	local GuildName = retep:GetGuildName()
+	local GuildName = RetRoll:GetGuildName()
 	if GuildName == nil or GuildName == "" then DEFAULT_CHAT_FRAME:AddMessage("SendHostInfoUpdate : not in guild") return end
 	 
 	-- is raid a guild raid
@@ -2091,7 +2089,7 @@ function retep:SendHostInfoUpdate( member , epgp)
 	local prio = "BULK"
 	local message = string.format("%s:%s",GuildName,tostring(GuildRules))
 	if (member) then
-		local isPug,inGuildName =  retep:isPug(member)
+		local isPug,inGuildName =  RetRoll:isPug(member)
 	
 		if isPug then
 			local ep,gp
@@ -2099,7 +2097,7 @@ function retep:SendHostInfoUpdate( member , epgp)
  
 				_,_, ep,gp = string.find(epgp, "{(%d+):(%d+)}")
  
-				DEFAULT_CHAT_FRAME:AddMessage(string.format("epgp %s  %d %d", epgp,  ep,gp)) 
+				DEFAULT_CHAT_FRAME:AddMessage(string.format("MainStandinggp %s  %d %d", epgp,  ep,gp)) 
 			else
 				ep = self:get_ep_v3(inGuildName)  
 				gp = self:get_gp_v3(inGuildName)  
@@ -2107,34 +2105,34 @@ function retep:SendHostInfoUpdate( member , epgp)
 			prio = "ALERT"
 			message = message ..":"..string.format("%s:%s:%d:%d",member,inGuildName,ep,gp)
 		else
-			if retep:verifyGuildMember(member,true,true) then
+			if RetRoll:verifyGuildMember(member,true,true) then
 			
 			else
 				message = message ..":"..string.format("%s:%s:%d:%d",member,"!!",0,0)
 			end
 		end
 	end
-	retep:SendMessage(RetEPMSG.HostInfoUpdate,message,prio) 
+	RetRoll:SendMessage(RetRollMSG.HostInfoUpdate,message,prio) 
 end
 
 
-function retep:Status()
-DEFAULT_CHAT_FRAME:AddMessage("Host LeadName " .. retep.VARS.HostLeadName )
-DEFAULT_CHAT_FRAME:AddMessage("Host GuildName " .. retep.VARS.HostGuildName ) 
+function RetRoll:Status()
+DEFAULT_CHAT_FRAME:AddMessage("Host LeadName " .. RetRoll.VARS.HostLeadName )
+DEFAULT_CHAT_FRAME:AddMessage("Host GuildName " .. RetRoll.VARS.HostGuildName ) 
 end
 
-function retep:ParseHostInfo(  sender , text )
+function RetRoll:ParseHostInfo(  sender , text )
 
-	RetEPMSG:DBGMSG("Parsing HostInfo:"..text)
-	local GuildName = retep:GetGuildName()
-	local fields = retep:strsplitT(':', text)
-	retep.VARS.HostLeadName = sender or "!"
+	RetRollMSG:DBGMSG("Parsing HostInfo:"..text)
+	local GuildName = RetRoll:GetGuildName()
+	local fields = RetRoll:strsplitT(':', text)
+	RetRoll.VARS.HostLeadName = sender or "!"
 	local HostGuildName = fields[1]
 	if HostGuildName then
-		local oldHost = retep.VARS.HostGuildName 
-		retep.VARS.HostGuildName =  fields[1] 
+		local oldHost = RetRoll.VARS.HostGuildName 
+		RetRoll.VARS.HostGuildName =  fields[1] 
 		
-		if oldHost~=retep.VARS.HostGuildName then
+		if oldHost~=RetRoll.VARS.HostGuildName then
 			self:defaultPrint(string.format("This Raid is hosted by %s.", HostGuildName))
 		end
 		if HostGuildName == GuildName then
@@ -2152,12 +2150,12 @@ function retep:ParseHostInfo(  sender , text )
 						local ep = tonumber(fields[5]) or 0
 						local gp = tonumber(fields[6]) or 0
 						-- update ep/gp cache
-						local key = retep:GetGuildKey(retep.VARS.HostGuildName)
-						if not retep_pugCache[key] then
-							retep_pugCache[key] = {}
+						local key = RetRoll:GetGuildKey(RetRoll.VARS.HostGuildName)
+						if not RetRoll_pugCache[key] then
+							RetRoll_pugCache[key] = {}
 						end
-						retep_pugCache[key][fields[3]] = {ep,gp,PugReg}
-						self:defaultPrint(string.format("Updated EP/GP for %s as %s in guild %s: %d : %d",  TargetMember, PugReg, HostGuildName, ep,gp))
+						RetRoll_pugCache[key][fields[3]] = {ep,gp,PugReg}
+						self:defaultPrint(string.format("Updated Standing for %s as %s in guild %s: %d : %d",  TargetMember, PugReg, HostGuildName, ep,gp))
 					else
 						-- announce unregistered
 						self:defaultPrint(string.format("You don't have standing bank character in %s, contact one of their officers for that", HostGuildName))
@@ -2169,19 +2167,19 @@ function retep:ParseHostInfo(  sender , text )
 	end
 	-- update guild ep cache
 end
-function retep:RequestHostInfo() 
-	if GetTime()-RetEPMSG.RequestHostInfoUpdateTS > 5 then
-		RetEPMSG.RequestHostInfoUpdateTS = GetTime()
-		retep:SendMessage(RetEPMSG.RequestHostInfoUpdate,"RequestHostInfoUpdate","ALERT")
+function RetRoll:RequestHostInfo() 
+	if GetTime()-RetRollMSG.RequestHostInfoUpdateTS > 5 then
+		RetRollMSG.RequestHostInfoUpdateTS = GetTime()
+		RetRoll:SendMessage(RetRollMSG.RequestHostInfoUpdate,"RequestHostInfoUpdate","ALERT")
 	end
 end 
 
 
-function retep:sendPugEpUpdatePacket(packet)
+function RetRoll:sendPugEpUpdatePacket(packet)
 	
 	
 
-	local updateline = string.format("%s{", retep:GetGuildName())
+	local updateline = string.format("%s{", RetRoll:GetGuildName())
 	for i, ep in ipairs(packet) do
 		updateline = updateline .. ep
 		if (i<table.getn(packet)) then 
@@ -2192,16 +2190,16 @@ function retep:sendPugEpUpdatePacket(packet)
 	end
 	
 		updateline = updateline .. "}"
-	RetEPMSG:DBGMSG("Sending a packet")
-	retep:SendMessage(RetEPMSG.PugStandingUpdate,updateline,"BULK")
+	RetRollMSG:DBGMSG("Sending a packet")
+	RetRoll:SendMessage(RetRollMSG.PugStandingUpdate,updateline,"BULK")
 end
 
-function retep:parsePugEpUpdatePacket(message)
+function RetRoll:parsePugEpUpdatePacket(message)
 
 	
  local playerName = UnitName("player") 
  local _, _, guildName , packet = string.find(message,"([^{]+){([^}]+)}")
-  local segs = retep:strsplitT(',', packet)
+  local segs = RetRoll:strsplitT(',', packet)
   
   for i, seg in pairs(segs) do
   
@@ -2211,16 +2209,16 @@ function retep:parsePugEpUpdatePacket(message)
 	 if playerName and inGuildName and ep and gp then
 		
       if guildName then
-		local key = retep:GetGuildKey(guildName)
-        if retep_pugCache == nil then 
-            retep_pugCache = {}
+		local key = RetRoll:GetGuildKey(guildName)
+        if RetRoll_pugCache == nil then 
+            RetRoll_pugCache = {}
         end
-        if  retep_pugCache[key] == nil then
-          retep_pugCache[key] = {}
+        if  RetRoll_pugCache[key] == nil then
+          RetRoll_pugCache[key] = {}
         end
-        retep_pugCache[key][playerName] = {ep,gp}
+        RetRoll_pugCache[key][playerName] = {ep,gp}
 
-        self:defaultPrint(string.format("Updated EP/GP for %s in guild %s as %s: %d : %d", playerName, guildName,inGuildName, ep,gp))
+        self:defaultPrint(string.format("Updated Standing for %s in guild %s as %s: %d : %d", playerName, guildName,inGuildName, ep,gp))
         end
       else
         self:defaultPrint("Could not parse guild name from broadcast "  )
@@ -2232,35 +2230,35 @@ function retep:parsePugEpUpdatePacket(message)
 end
 
 
-function retep:ReportIfPugs()
-	local GuildName = retep:GetGuildName()
-	if (GuildName and  GuildName == retep.VARS.HostGuildName and retep:inRaid(pug)) then
-		retep:SendHostInfoUpdate( pug)
+function RetRoll:ReportIfPugs()
+	local GuildName = RetRoll:GetGuildName()
+	if (GuildName and  GuildName == RetRoll.VARS.HostGuildName and RetRoll:inRaid(pug)) then
+		RetRoll:SendHostInfoUpdate( pug)
 	end
 end
 
-function retep:ReportPugManualEdit(pug , epgp)
-	local GuildName = retep:GetGuildName()
-	if (pug and epgp and GuildName and  GuildName == retep.VARS.HostGuildName and retep:inRaid(pug)) then
-		retep:SendHostInfoUpdate( pug, epgp)
+function RetRoll:ReportPugManualEdit(pug , epgp)
+	local GuildName = RetRoll:GetGuildName()
+	if (pug and epgp and GuildName and  GuildName == RetRoll.VARS.HostGuildName and RetRoll:inRaid(pug)) then
+		RetRoll:SendHostInfoUpdate( pug, epgp)
 	end
 end
 
-function retep:SendMessage(subject, msg , prio)
+function RetRoll:SendMessage(subject, msg , prio)
 	prio = prio or "BULK"
-	RetEPMSG:DBGMSG("--SendingAddonMSG["..subject.."]:"..msg , true) 
+	RetRollMSG:DBGMSG("--SendingAddonMSG["..subject.."]:"..msg , true) 
     if GetNumRaidMembers() == 0 then
-       -- SendAddonMessage(RetEPMSG.prefix..subject, msg, "PARTY", UnitName("player"));
-		ChatThrottleLib:SendAddonMessage(prio, RetEPMSG.prefix..subject, msg, "PARTY")
+       -- SendAddonMessage(RetRollMSG.prefix..subject, msg, "PARTY", UnitName("player"));
+		ChatThrottleLib:SendAddonMessage(prio, RetRollMSG.prefix..subject, msg, "PARTY")
     else
-		ChatThrottleLib:SendAddonMessage(prio, RetEPMSG.prefix..subject, msg, "RAID")
+		ChatThrottleLib:SendAddonMessage(prio, RetRollMSG.prefix..subject, msg, "RAID")
     end
 end
-function RetEPMSG:DBGMSG(msg)
-		RetEPMSG:DBGMSG(msg, false)
+function RetRollMSG:DBGMSG(msg)
+		RetRollMSG:DBGMSG(msg, false)
 end
-function RetEPMSG:DBGMSG(msg, red)
-	if RetEPMSG.dbg then 
+function RetRollMSG:DBGMSG(msg, red)
+	if RetRollMSG.dbg then 
 		if red then
 			DEFAULT_CHAT_FRAME:AddMessage( msg ,0.5,0.5,0.8 )   
 		else
@@ -2270,41 +2268,41 @@ function RetEPMSG:DBGMSG(msg, red)
 end
 
 
-function RetEPMSG:OnCHAT_MSG_ADDON( prefix, text, channel, sender)
+function RetRollMSG:OnCHAT_MSG_ADDON( prefix, text, channel, sender)
 		
 	
-	if ( RetEPMSG.delayedinit) then  retep:addonComms(prefix,text,channel,sender) end
+	if ( RetRollMSG.delayedinit) then  RetRoll:addonComms(prefix,text,channel,sender) end
 	 
 		if (channel == "RAID" or channel == "PARTY") then
 		
-		if (  string.find( prefix, RetEPMSG.prefix) ) then  
+		if (  string.find( prefix, RetRollMSG.prefix) ) then  
 			
 			
 				if ( sender == UnitName("player")) then 
-					--RetEPMSG:DBGMSG("sent a message" )   
+					--RetRollMSG:DBGMSG("sent a message" )   
 					return 
 				end
-				--RetEPMSG:DBGMSG("Recieved a message" )  
+				--RetRollMSG:DBGMSG("Recieved a message" )  
 				
-				local _ ,raidlead = retep:GetRaidLeader()
+				local _ ,raidlead = RetRoll:GetRaidLeader()
 				if (UnitName("player")==raidlead) then
-				--	RetEPMSG:DBGMSG("as reaidleader" )  
-					if ( string.find( prefix, RetEPMSG.RequestHostInfoUpdate) and  retep:inRaid(sender)) then
-						RetEPMSG:DBGMSG("Recieved a RequestHostInfoUpdate from " .. sender ) 
-						 retep:SendHostInfoUpdate(sender)
+				--	RetRollMSG:DBGMSG("as reaidleader" )  
+					if ( string.find( prefix, RetRollMSG.RequestHostInfoUpdate) and  RetRoll:inRaid(sender)) then
+						RetRollMSG:DBGMSG("Recieved a RequestHostInfoUpdate from " .. sender ) 
+						 RetRoll:SendHostInfoUpdate(sender)
 					end
 				else
-					--RetEPMSG:DBGMSG("as member" )  
+					--RetRollMSG:DBGMSG("as member" )  
 					
 					if (sender == raidlead) then
-					RetEPMSG:DBGMSG("from raid leader: " .. sender )  
-						if ( string.find( prefix, RetEPMSG.HostInfoUpdate)) then
-							RetEPMSG:DBGMSG("Recieved a HostInfoUpdate from " .. sender ) 
-							retep:ParseHostInfo( sender, text ) 
+					RetRollMSG:DBGMSG("from raid leader: " .. sender )  
+						if ( string.find( prefix, RetRollMSG.HostInfoUpdate)) then
+							RetRollMSG:DBGMSG("Recieved a HostInfoUpdate from " .. sender ) 
+							RetRoll:ParseHostInfo( sender, text ) 
 						end
-						if ( string.find( prefix,RetEPMSG.PugStandingUpdate)) then
-							RetEPMSG:DBGMSG("Recieved a PugStandingUpdate from " .. sender ) 
-							retep:parsePugEpUpdatePacket( text )
+						if ( string.find( prefix,RetRollMSG.PugStandingUpdate)) then
+							RetRollMSG:DBGMSG("Recieved a PugStandingUpdate from " .. sender ) 
+							RetRoll:parsePugEpUpdatePacket( text )
 						end
 					end
 				end 
@@ -2321,5 +2319,5 @@ end
 
 
 
--- GLOBALS: retep_saychannel,retep_groupbyclass,retep_groupbyarmor,retep_groupbyrole,retep_raidonly,retep_decay,retep_minep,retep_reservechannel,retep_main,retep_progress,retep_discount,retep_altspool,retep_altpercent,retep_log,retep_dbver,retep_looted,retep_debug,retep_fubar,retep_showRollWindow
--- GLOBALS: retep,retep_prices,retep_standings,retep_bids,retep_loot,retep_reserves,retep_alts,retep_logs,retep_pugCache
+-- GLOBALS: RetRoll_saychannel,RetRoll_groupbyclass,RetRoll_groupbyarmor,RetRoll_groupbyrole,RetRoll_raidonly,RetRoll_decay,RetRoll_minPE,RetRoll_reservechannel,RetRoll_main,RetRoll_progress,RetRoll_discount,RetRollAltspool,RetRoll_altpercent,RetRoll_log,RetRoll_dbver,RetRoll_looted,RetRoll_debug,RetRoll_fubar,RetRoll_showRollWindow
+-- GLOBALS: RetRoll,RetRoll_prices,RetRoll_standings,RetRoll_bids,RetRoll_loot,RetRoll_reserves,RetRollAlts,RetRoll_logs,RetRoll_pugCache

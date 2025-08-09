@@ -5,11 +5,11 @@ local C = AceLibrary("Crayon-2.0")
 local BC = AceLibrary("Babble-Class-2.2")
 local L = AceLibrary("AceLocale-2.2"):new("retroll")
 
-retep_alts = retep:NewModule("retep_alts", "AceDB-2.0")
+RetRollAlts = RetRoll:NewModule("RetRollAlts", "AceDB-2.0")
 
-function retep_alts:OnEnable()
-  if not T:IsRegistered("retep_alts") then
-    T:Register("retep_alts",
+function RetRollAlts:OnEnable()
+  if not T:IsRegistered("RetRollAlts") then
+    T:Register("RetRollAlts",
       "children", function()
         T:SetTitle(L["retroll alts"])
         self:OnTooltipUpdate()
@@ -21,34 +21,34 @@ function retep_alts:OnEnable()
         D:AddLine(
           "text", L["Refresh"],
           "tooltipText", L["Refresh window"],
-          "func", function() retep_alts:Refresh() end
+          "func", function() RetRollAlts:Refresh() end
         )
       end      
     )
   end
-  if not T:IsAttached("retep_alts") then
-    T:Open("retep_alts")
+  if not T:IsAttached("RetRollAlts") then
+    T:Open("RetRollAlts")
   end
 end
 
-function retep_alts:OnDisable()
-  T:Close("retep_alts")
+function RetRollAlts:OnDisable()
+  T:Close("RetRollAlts")
 end
 
-function retep_alts:Refresh()
-  T:Refresh("retep_alts")
+function RetRollAlts:Refresh()
+  T:Refresh("RetRollAlts")
 end
 
-function retep_alts:setHideScript()
+function RetRollAlts:setHideScript()
   local i = 1
   local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
   while (tablet) and i<100 do
-    if tablet.owner ~= nil and tablet.owner == "retep_alts" then
-      retep:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
+    if tablet.owner ~= nil and tablet.owner == "RetRollAlts" then
+      RetRoll:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
       tablet:SetScript("OnHide",nil)
       tablet:SetScript("OnHide",function()
-          if not T:IsAttached("retep_alts") then
-            T:Attach("retep_alts")
+          if not T:IsAttached("RetRollAlts") then
+            T:Attach("RetRollAlts")
             this:SetScript("OnHide",nil)
           end
         end)
@@ -59,38 +59,38 @@ function retep_alts:setHideScript()
   end
 end
 
-function retep_alts:Top()
-  if T:IsRegistered("retep_alts") and (T.registry.retep_alts.tooltip) then
-    T.registry.retep_alts.tooltip.scroll=0
+function RetRollAlts:Top()
+  if T:IsRegistered("RetRollAlts") and (T.registry.RetRollAlts.tooltip) then
+    T.registry.RetRollAlts.tooltip.scroll=0
   end  
 end
 
-function retep_alts:Toggle(forceShow)
+function RetRollAlts:Toggle(forceShow)
   self:Top()
-  if T:IsAttached("retep_alts") then
-    T:Detach("retep_alts") -- show
-    if (T:IsLocked("retep_alts")) then
-      T:ToggleLocked("retep_alts")
+  if T:IsAttached("RetRollAlts") then
+    T:Detach("RetRollAlts") -- show
+    if (T:IsLocked("RetRollAlts")) then
+      T:ToggleLocked("RetRollAlts")
     end
     self:setHideScript()
   else
     if (forceShow) then
-      retep_alts:Refresh()
+      RetRollAlts:Refresh()
     else
-      T:Attach("retep_alts") -- hide
+      T:Attach("RetRollAlts") -- hide
     end
   end
 end
 
-function retep_alts:OnClickItem(name)
+function RetRollAlts:OnClickItem(name)
   --ChatFrame_SendTell(name)
 end
 
-function retep_alts:BuildAltsTable()
-  return retep.alts
+function RetRollAlts:BuildAltsTable()
+  return RetRoll.alts
 end
 
-function retep_alts:OnTooltipUpdate()
+function RetRollAlts:OnTooltipUpdate()
   local cat = T:AddCategory(
       "columns", 2,
       "text",  C:Orange(L["Main"]),   "child_textR",    1, "child_textG",    1, "child_textB",    1, "child_justify",  "LEFT",
@@ -115,5 +115,5 @@ function retep_alts:OnTooltipUpdate()
   end
 end
 
--- GLOBALS: retep_saychannel,retep_groupbyclass,retep_groupbyarmor,retep_groupbyrole,retep_raidonly,retep_decay,retep_minep,retep_reservechannel,retep_main,retep_progress,retep_discount,retep_log,retep_dbver,retep_looted
--- GLOBALS: retep,retep_prices,retep_standings,retep_bids,retep_loot,retep_reserves,retep_alts,retep_logs
+-- GLOBALS: RetRoll_saychannel,RetRoll_groupbyclass,RetRoll_groupbyarmor,RetRoll_groupbyrole,RetRoll_raidonly,RetRoll_decay,RetRoll_minPE,RetRoll_reservechannel,RetRoll_main,RetRoll_progress,RetRoll_discount,RetRoll_log,RetRoll_dbver,RetRoll_looted
+-- GLOBALS: RetRoll,RetRoll_prices,RetRoll_standings,RetRoll_bids,RetRoll_loot,RetRoll_reserves,RetRollAlts,RetRoll_logs

@@ -5,11 +5,11 @@ local C = AceLibrary("Crayon-2.0")
 local BC = AceLibrary("Babble-Class-2.2")
 local L = AceLibrary("AceLocale-2.2"):new("retroll")
 
-retep_reserves = retep:NewModule("retep_reserves", "AceDB-2.0")
+RetRoll_reserves = RetRoll:NewModule("RetRoll_reserves", "AceDB-2.0")
 
-function retep_reserves:OnEnable()
-  if not T:IsRegistered("retep_reserves") then
-    T:Register("retep_reserves",
+function RetRoll_reserves:OnEnable()
+  if not T:IsRegistered("RetRoll_reserves") then
+    T:Register("RetRoll_reserves",
       "children", function()
         T:SetTitle(L["retroll reserves"])
         self:OnTooltipUpdate()
@@ -21,34 +21,34 @@ function retep_reserves:OnEnable()
         D:AddLine(
           "text", L["Refresh"],
           "tooltipText", L["Refresh window"],
-          "func", function() retep_reserves:Refresh() end
+          "func", function() RetRoll_reserves:Refresh() end
         )
       end      
     )
   end
-  if not T:IsAttached("retep_reserves") then
-    T:Open("retep_reserves")
+  if not T:IsAttached("RetRoll_reserves") then
+    T:Open("RetRoll_reserves")
   end
 end
 
-function retep_reserves:OnDisable()
-  T:Close("retep_reserves")
+function RetRoll_reserves:OnDisable()
+  T:Close("RetRoll_reserves")
 end
 
-function retep_reserves:Refresh()
-  T:Refresh("retep_reserves")
+function RetRoll_reserves:Refresh()
+  T:Refresh("RetRoll_reserves")
 end
 
-function retep_reserves:setHideScript()
+function RetRoll_reserves:setHideScript()
   local i = 1
   local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
   while (tablet) and i<100 do
-    if tablet.owner ~= nil and tablet.owner == "retep_reserves" then
-      retep:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
+    if tablet.owner ~= nil and tablet.owner == "RetRoll_reserves" then
+      RetRoll:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
       tablet:SetScript("OnHide",nil)
       tablet:SetScript("OnHide",function()
-          if not T:IsAttached("retep_reserves") then
-            T:Attach("retep_reserves")
+          if not T:IsAttached("RetRoll_reserves") then
+            T:Attach("RetRoll_reserves")
             this:SetScript("OnHide",nil)
           end
         end)
@@ -59,49 +59,49 @@ function retep_reserves:setHideScript()
   end  
 end
 
-function retep_reserves:Top()
-  if T:IsRegistered("retep_reserves") and (T.registry.retep_reserves.tooltip) then
-    T.registry.retep_reserves.tooltip.scroll=0
+function RetRoll_reserves:Top()
+  if T:IsRegistered("RetRoll_reserves") and (T.registry.RetRoll_reserves.tooltip) then
+    T.registry.RetRoll_reserves.tooltip.scroll=0
   end  
 end
 
-function retep_reserves:Toggle(forceShow)
+function RetRoll_reserves:Toggle(forceShow)
   self:Top()
-  if T:IsAttached("retep_reserves") then
-    T:Detach("retep_reserves") -- show
-    if (T:IsLocked("retep_reserves")) then
-      T:ToggleLocked("retep_reserves")
+  if T:IsAttached("RetRoll_reserves") then
+    T:Detach("RetRoll_reserves") -- show
+    if (T:IsLocked("RetRoll_reserves")) then
+      T:ToggleLocked("RetRoll_reserves")
     end
     self:setHideScript()
   else
     if (forceShow) then
-      retep_reserves:Refresh()
+      RetRoll_reserves:Refresh()
     else
-      T:Attach("retep_reserves") -- hide
+      T:Attach("RetRoll_reserves") -- hide
     end
   end  
 end
 
-function retep_reserves:OnClickItem(name)
+function RetRoll_reserves:OnClickItem(name)
   ChatFrame_SendTell(name)
 end
 
-function retep_reserves:BuildReservesTable()
+function RetRoll_reserves:BuildReservesTable()
   --{name,class,rank,alt}
-  table.sort(retep.reserves, function(a,b)
+  table.sort(RetRoll.reserves, function(a,b)
     if (a[2] ~= b[2]) then return a[2] > b[2]
     else return a[1] > b[1] end
   end)
-  return retep.reserves
+  return RetRoll.reserves
 end
 
-function retep_reserves:OnTooltipUpdate()
+function RetRoll_reserves:OnTooltipUpdate()
   local cdcat = T:AddCategory(
       "columns", 2
     )
   cdcat:AddLine(
       "text", C:Orange(L["Countdown"]),
-      "text2", retep.timer.cd_text
+      "text2", RetRoll.timer.cd_text
     )
   local cat = T:AddCategory(
       "columns", 3,
@@ -121,5 +121,5 @@ function retep_reserves:OnTooltipUpdate()
   end
 end
 
--- GLOBALS: retep_saychannel,retep_groupbyclass,retep_groupbyarmor,retep_groupbyrole,retep_raidonly,retep_decay,retep_minep,retep_reservechannel,retep_main,retep_progress,retep_discount,retep_log,retep_dbver,retep_looted
--- GLOBALS: retep,retep_prices,retep_standings,retep_bids,retep_loot,retep_reserves,retep_alts,retep_logs
+-- GLOBALS: RetRoll_saychannel,RetRoll_groupbyclass,RetRoll_groupbyarmor,RetRoll_groupbyrole,RetRoll_raidonly,RetRoll_decay,RetRoll_minPE,RetRoll_reservechannel,RetRoll_main,RetRoll_progress,RetRoll_discount,RetRoll_log,RetRoll_dbver,RetRoll_looted
+-- GLOBALS: RetRoll,RetRoll_prices,RetRoll_standings,RetRoll_bids,RetRoll_loot,RetRoll_reserves,RetRollAlts,RetRoll_logs
