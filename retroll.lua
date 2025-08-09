@@ -1,12 +1,12 @@
 retep = AceLibrary("AceAddon-2.0"):new("AceConsole-2.0", "AceHook-2.1", "AceDB-2.0", "AceDebug-2.0", "AceEvent-2.0", "AceModuleCore-2.0", "FuBarPlugin-2.0")
 retep:SetModuleMixins("AceDebug-2.0")
-local D = AceLibrary("Dewdrop-2.0")
+local D = AceLibrary("Dewdrop-2.0")-- Standings table
 local BZ = AceLibrary("Babble-Zone-2.2")
-local C = AceLibrary("Crayon-2.0")
-local BC = AceLibrary("Babble-Class-2.2")
-local DF = AceLibrary("Deformat-2.0")
-local G = AceLibrary("Gratuity-2.0")
-local T = AceLibrary("Tablet-2.0")
+local C = AceLibrary("Crayon-2.0") -- chat color
+local BC = AceLibrary("Babble-Class-2.2") 
+--local DF = AceLibrary("Deformat-2.0")
+--local G = AceLibrary("Gratuity-2.0")
+local T = AceLibrary("Tablet-2.0") -- tooltips
 local L = AceLibrary("AceLocale-2.2"):new("retroll")
 retep.VARS = {
   basegp = 0,
