@@ -251,8 +251,7 @@ RetRoll.cmdtable = function()
   end
 end
 RetRoll.reserves = {}
-RetRoll.alts = {}
-
+RetRoll.alts = {} 
 function RetRoll:buildMenu()
   if not (options) then
     options = {
@@ -306,8 +305,8 @@ function RetRoll:buildMenu()
  
     options.args["updatePugs"] = {
       type = "execute",
-      name = "Update Pug MainStanding",
-      desc = "Update Pug MainStanding",
+      name = "Update Pug Standing",
+      desc = "Update Pug Standing",
       order = 62,
       hidden = function() return not (admin()) end,
       func = function() RetRoll:updateAllPugStanding(false) end
@@ -1588,7 +1587,7 @@ local zone_multipliers = {
   ["T2"] =   {["T3"]=1,["T2.5"]=1,   ["T2"]=1,  ["T1.5"]=0.5, ["T1"]=0.5},
   ["T1"] =   {["T3"]=1,["T2.5"]=1,   ["T2"]=1,  ["T1.5"]=1,   ["T1"]=1}
 }
-function RetRoll:suggestedAwardEP()
+function RetRoll:suggestedAwardMainStanding()
 
 return RetRoll.VARS.baseawardpoints
 -- local currentTier, zoneEN, zoneLoc, checkTier, multiplier
@@ -1617,7 +1616,7 @@ return RetRoll.VARS.baseawardpoints
 --   return RetRoll.VARS.baseawardpoints
 -- end
 end
-function RetRoll:suggestedAwardGP()
+function RetRoll:suggestedAwardAuxStanding()
 
 return RetRoll.VARS.baseawardpoints
 -- local currentTier, zoneEN, zoneLoc, checkTier, multiplier
