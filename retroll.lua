@@ -74,8 +74,17 @@ local admincmd, membercmd = {type = "group", handler = RetRoll, args = {
       func = function()
         RetRoll_standings:Toggle()
       end,
+      order = 1,
+    },
+    resetButton = {
+      type = "execute",
+      name = "Reset Button",
+      desc = "Reset Button",
+      func = function()
+        RetRoll:ResetButton()  
+      end,
       order = 2,
-    },        
+    },      
     restart = {
       type = "execute",
       name = L["Restart"],
@@ -160,15 +169,15 @@ local admincmd, membercmd = {type = "group", handler = RetRoll, args = {
       end,
       order = 1,
     },
-    --progress = {
-    --  type = "execute",
-    --  name = L["Progress"],
-    --  desc = L["Print Progress Multiplier."],
-    --  func = function()
-    --    RetRoll:defaultPrint(RetRoll_progress)
-    --  end,
-    --  order = 2,
-    --},
+    resetButton = {
+      type = "execute",
+      name = "Reset Button",
+      desc = "Reset Button",
+      func = function()
+        RetRoll:ResetButton()  
+      end,
+      order = 2,
+    }, 
     restart = {
       type = "execute",
       name = L["Restart"],
@@ -1589,6 +1598,13 @@ local zone_multipliers = {
 }
 function RetRoll:suggestedAwardMainStanding()
 
+
+    local isMainStanding , reward = RetRoll.GetReward()
+    if not isMainStanding and reward then
+        return reward
+    end
+
+
 return RetRoll.VARS.baseawardpoints
 -- local currentTier, zoneEN, zoneLoc, checkTier, multiplier
 -- local inInstance, instanceType = IsInInstance()
@@ -1617,6 +1633,12 @@ return RetRoll.VARS.baseawardpoints
 -- end
 end
 function RetRoll:suggestedAwardAuxStanding()
+
+    local isMainStanding , reward = RetRoll.GetReward()
+    if ( isMainStanding) and reward then
+        return reward
+    end
+
 
 return RetRoll.VARS.baseawardpoints
 -- local currentTier, zoneEN, zoneLoc, checkTier, multiplier
@@ -2026,8 +2048,81 @@ function RetRoll:getPugName(name)
   end
   return nil
 end 
+local RaidKey = {[L["Molten Core"]]="MC",[L["Onyxia\'s Lair"]]="ONY",[L["Blackwing Lair"]]="BWL",[L["Ahn\'Qiraj"]]="AQ40",[L["Naxxramas"]]="NAX",["Tower of Karazhan"]="K10",["Upper Tower of Karazhan"]="K40",["???"]="K40"}
+function RetRoll:GetReward()
 
- 
+   local raw = string.gsub(string.gsub(GetGuildInfoText(),"\n","#")," ","")
+   local Scores ={}
+   local reward = RetRoll.VARS.baseawardpoints
+  for tier in string.gfind(raw,"(B[^:]:[^:]+:[^#]+#)") do
+        local _,_,dungeons,rewards = string.find(tier,"B[^:]:([^:]+):([^#]+)#")
+        local ds =  RetRoll:strsplitT(",",dungeons)
+        local ss =  RetRoll:strsplitT(",",rewards)
+
+        for i, key in ipairs(ds) do
+		 local n= i
+		    if (i>table.getn(ss)) then 
+			     n = table.getn(ss)
+		    end
+		    
+		    Scores[key]=ss[n]
+           -- DEFAULT_CHAT_FRAME:AddMessage( key .."="..ss[n] )
+	    end
+         
+
+  end
+
+  
+   
+
+  local isMainStanding = false, zoneEN, zoneLoc,LocKey  
+  local inInstance, instanceType = IsInInstance()
+  if (inInstance == nil) or (instanceType ~= nil and instanceType == "none") then
+        isMainStanding = false
+  end
+  if (inInstance) then --and (instanceType == "raid") then
+    zoneLoc = GetRealZoneText()
+   -- DEFAULT_CHAT_FRAME:AddMessage("zoneLoc:"..zoneLoc )
+    if (BZ:HasReverseTranslation(zoneLoc)) then
+      zoneEN = BZ:GetReverseTranslation(zoneLoc)
+     -- DEFAULT_CHAT_FRAME:AddMessage("zoneEN:".. zoneEN)
+      if zoneEN then
+             if (zoneEN == "Tower of Karazhan") then
+                local mapFileName, textureHeight, textureWidth, isMicrodungeon, microDungeonMapName = GetMapInfo();
+                if mapFileName == "KarazhanUpper" then
+                    zoneEN = "Upper Tower of Karazhan"
+                end
+            end
+        LocKey = RaidKey[zoneEN]
+        if LocKey then
+          --  DEFAULT_CHAT_FRAME:AddMessage("LocKey:".. LocKey)
+
+            if Scores[LocKey] =="main"then
+                reward = 15
+            else
+                isMainStanding = true
+                reward = tonumber (Scores[LocKey])
+            end
+            if reward then
+            --    DEFAULT_CHAT_FRAME:AddMessage("reward:".. reward)
+            
+            end 
+        end 
+        end 
+    end
+
+    return isMainStanding , reward
+  end
+
+
+
+
+
+
+   
+
+
+end
 
 function RetRoll:UpdateHostInfo()
  

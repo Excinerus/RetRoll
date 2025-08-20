@@ -85,8 +85,19 @@ end
 -- Create a frame for the Roll button
 local rollFrame = CreateFrame("Frame", "ShootyRollFrame", UIParent)
 rollFrame:SetWidth(80)
-rollFrame:SetHeight(40)
+rollFrame:SetHeight(41)
 rollFrame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", RetRoll_RollPos.x, RetRoll_RollPos.y)
+
+
+function RetRoll:ResetButton()
+rollFrame:SetWidth(80)
+rollFrame:SetHeight(41)
+rollFrame:SetMovable(false)
+rollFrame:ClearAllPoints()
+rollFrame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", 400, 300)
+rollFrame:SetMovable(true)
+end
+
 
 if not RetRoll_showRollWindow then
     rollFrame:Hide()
@@ -156,7 +167,7 @@ local options = {
     { "SR", "ret sr" },
     { "CSR", "ret csr" },
     { "Tmog", "roll 50" },
-    { "Interest", "roll 99" },
+    { "99 (Interest)", "roll 99" },
     { "101", "roll 101"},
     { "100", "roll 100" },  
     { "69", "noice" },  
