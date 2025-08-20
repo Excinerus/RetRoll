@@ -129,7 +129,7 @@ rollOptionsFrame:SetHeight(30)
 rollOptionsFrame:Hide()
 
 -- Function to create roll option buttons
-local function CreateRollButton(name, parent, command, anchor)
+local function CreateRollButton(name, parent, command, anchor,width, font)
     local buttonFrame = CreateFrame("Frame", nil, parent)
     buttonFrame:SetWidth(70)
     buttonFrame:SetHeight(30)
@@ -143,11 +143,13 @@ local function CreateRollButton(name, parent, command, anchor)
     })
 
     local button = CreateFrame("Button", nil, buttonFrame, "UIPanelButtonTemplate")
-    button:SetWidth(60)
+    button:SetWidth(width or 60)
     button:SetHeight(20)
     button:SetText(name)
     button:SetPoint("CENTER", buttonFrame, "CENTER")
-
+    if font then
+    button:SetFont("Fonts\\FRIZQT__.TTF", 8)
+    end
     button:SetScript("OnClick", function()
         ExecuteCommand(command)
         -- Only hide if the command isn't "shooty show"
@@ -167,7 +169,7 @@ local options = {
     { "SR", "ret sr" },
     { "CSR", "ret csr" },
     { "Tmog", "roll 50" },
-    { "99 (Interest)", "roll 99" },
+    { "Interest (99)", "roll 99" ,60 , true},
     { "101", "roll 101"},
     { "100", "roll 100" },  
     { "69", "noice" },  
@@ -177,16 +179,15 @@ local options = {
 -- Create roll buttons dynamically with closer spacing
 local previousButton = rollOptionsFrame
 for _, option in ipairs(options) do
-    local buttonFrame = CreateRollButton(option[1], rollOptionsFrame, option[2], previousButton)
+    local buttonFrame = CreateRollButton(option[1], rollOptionsFrame, option[2], previousButton,option[3] or 60,option[4] or false)
 
     if previousButton == rollOptionsFrame then
         -- For the first button, set it relative to the rollOptionsFrame
-        buttonFrame:SetPoint("TOP", rollOptionsFrame, "TOP", 0, 0)  -- Align with the top of the options frame
+        buttonFrame:SetPoint("TOP", rollOptionsFrame, "TOP", 0, 0)  -- Align with the top of the options frame 
     else
         -- For subsequent buttons, set their position based on the previous button
         buttonFrame:SetPoint("TOP", previousButton, "BOTTOM", 0, 5)  -- Close spacing
     end
-
     previousButton = buttonFrame  -- Update previousButton to the current buttonFrame for the next iteration
 end
 
