@@ -914,7 +914,7 @@ end
 
 function RetRoll:init_notes_v3(guild_index,name,officernote)
   local ep,gp = self:get_ep_v3(name,officernote), self:get_gp_v3(name,officernote)
-  if not (ep and gp) then
+  if  (ep ==nil or gp==nil) then
     local initstring = string.format("{%d:%d}",0,RetRoll.VARS.baseAE)
     local newnote = string.format("%s%s",officernote,initstring)
     newnote = string.gsub(newnote,"(.*)({%d+:%d+})(.*)",sanitizeNote)
@@ -929,25 +929,27 @@ end
 function RetRoll:update_epgp_v3(ep,gp,guild_index,name,officernote,special_action)
   officernote = self:init_notes_v3(guild_index,name,officernote)
   local newnote
-  if (ep) then
-    ep = math.max(0,ep)
-    newnote = string.gsub(officernote,"(.*{)(%d+)(:)(%d+)(}.*)",function(head,oldep,divider,oldgp,tail)
+  if ( ep ~= nil) then 
+   -- ep = math.max(0,ep)
+    newnote = string.gsub(officernote,"(.*{)(%-?%d+)(:)(%-?%d+)(}.*)",function(head,oldep,divider,oldgp,tail) 
       return string.format("%s%s%s%s%s",head,ep,divider,oldgp,tail)
       end)
   end
-  if (gp) then
-    gp =  math.max(RetRoll.VARS.baseAE,gp)
+  if (gp~= nil) then 
+   -- gp =  math.max(RetRoll.VARS.baseAE,gp)
     if (newnote) then
-      newnote = string.gsub(newnote,"(.*{)(%d+)(:)(%d+)(}.*)",function(head,oldep,divider,oldgp,tail)
+     
+      newnote = string.gsub(newnote,"(.*{)(%-?%d+)(:)(%-?%d+)(}.*)",function(head,oldep,divider,oldgp,tail) 
         return string.format("%s%s%s%s%s",head,oldep,divider,gp,tail)
         end)
-    else
-      newnote = string.gsub(officernote,"(.*{)(%d+)(:)(%d+)(}.*)",function(head,oldep,divider,oldgp,tail)
+    else 
+      newnote = string.gsub(officernote,"(.*{)(%-?%d+)(:)(%-?%d+)(}.*)",function(head,oldep,divider,oldgp,tail)
+      
         return string.format("%s%s%s%s%s",head,oldep,divider,gp,tail)
         end)
     end
   end
-  if (newnote) then
+  if (newnote) then 
     GuildRosterSetOfficerNote(guild_index,newnote,true)
   end
 end
@@ -1153,7 +1155,7 @@ function RetRoll:decay_epgp_v3()
   for i = 1, GetNumGuildMembers(1) do
     local name,_,_,_,class,_,note,officernote,_,_ = GetGuildRosterInfo(i)
     local ep,gp = self:get_ep_v3(name,officernote), self:get_gp_v3(name,officernote)
-    if (ep and gp) then
+    if (ep~=nil and gp~=nil) then
       ep = self:num_round(ep*RetRoll_decay)
       gp = self:num_round(gp*RetRoll_decay)
       self:update_epgp_v3(ep,gp,i,name,officernote)

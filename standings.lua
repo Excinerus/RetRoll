@@ -343,27 +343,27 @@ function RetRoll_standings:ToggleRaidOnly()
 end
 
 local pr_sorter_standings = function(a,b)
-  if RetRoll_minPE > 0 then
-    local a_over = a[4]-RetRoll_minPE >= 0
-    local b_over = b[4]-RetRoll_minPE >= 0
-    if a_over and b_over or (not a_over and not b_over) then
-      if a[6] ~= b[6] then
-        return tonumber(a[6]) > tonumber(b[6])
-      else
-        return tonumber(a[4]) > tonumber(b[4])
-      end
-    elseif a_over and (not b_over) then
-      return true
-    elseif b_over and (not a_over) then
-      return false
-    end
-  else
+  --if RetRoll_minPE > 0 then
+  --  local a_over = a[4]-RetRoll_minPE >= 0
+  --  local b_over = b[4]-RetRoll_minPE >= 0
+  --  if a_over and b_over or (not a_over and not b_over) then
+  --    if a[6] ~= b[6] then
+  --      return tonumber(a[6]) > tonumber(b[6])
+  --    else
+  --      return tonumber(a[4]) > tonumber(b[4])
+  --    end
+  --  elseif a_over and (not b_over) then
+  --    return true
+  --  elseif b_over and (not a_over) then
+  --    return false
+  --  end
+  --else
     if a[6] ~= b[6] then
       return tonumber(a[6]) > tonumber(b[6])
     else
       return tonumber(a[4]) > tonumber(b[4])
     end
-  end
+ -- end
 end
 -- Builds a standings table with record:
 -- name, class, armor_class, roles, EP, GP, PR
@@ -436,10 +436,10 @@ end
 function RetRoll_standings:OnTooltipUpdate()
   local cat = T:AddCategory(
       "columns", 4,
-      "text",  C:Orange(L["Name"]),   "child_textR",    1, "child_textG",    1, "child_textB",    1, "child_justify",  "LEFT",
-      "text2", C:Orange(L["Main Standing"]),     "child_text2R",   1, "child_text2G",   1, "child_text2B",   1, "child_justify2", "RIGHT",
-      "text3", C:Orange(L["Auxiliary"]),     "child_text3R",   1, "child_text3G",   1, "child_text3B",   1, "child_justify3", "RIGHT",
-      "text4", C:Orange(L["Roll Value"]),     "child_text4R",   1, "child_text4G",   1, "child_text4B",   0, "child_justify4", "RIGHT"
+      "text",  C:Orange(L["Name"]),   "child_textR",    1, "child_textG",    1, "child_textB",    1, "LEFT",  "LEFT",
+      "text2", C:Orange(L["Main Standing"]),     "child_text2R",   1, "child_text2G",   1, "child_text2B",   1, "RIGHT", "RIGHT",
+      "text3", C:Orange(L["Auxiliary"]),     "child_text3R",   1, "child_text3G",   1, "child_text3B",   1, "RIGHT", "RIGHT",
+      "text4", C:Orange(L["Roll Value"]),     "child_text4R",   1, "child_text4G",   1, "child_text4B",   0, "RIGHT", "RIGHT"
     )
   local t = self:BuildStandingsTable()
   local separator
