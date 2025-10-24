@@ -1919,6 +1919,10 @@ function RetRoll:RollCommand(isSRRoll,isDSRRoll,isOS,bonus)
   end
   minRoll = minRoll + bonus
   maxRoll = maxRoll + bonus
+	
+  if maxRoll < 0 then maxRoll = 0 end
+  if minRoll < 0 then minRoll = 0 end
+  if minRoll > maxRoll then minRoll = maxRoll end
 
   RandomRoll(minRoll, maxRoll)
   local cappedGP =  RetRoll:GetRollingGP(gp)
