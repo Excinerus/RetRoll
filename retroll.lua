@@ -610,7 +610,14 @@ function RetRoll:OnMenuRequest()
   D:FeedAceOptionsTable(self._options)
 end
 
- 
+function RetRoll:calculateBonus(input)
+    local number = tonumber(input)
+    if number and number >= 2 and number <= 15 then
+        return number * 20
+    end
+    return 20  -- Return 20 for first week if input is invalid
+end
+
 function RetRoll:delayedInit()
   --table.insert(RetRoll_debug,{[date("%b/%d %H:%M:%S")]="delayedInit"})
   RetRoll.VARS.GuildName  =""
@@ -640,14 +647,6 @@ function RetRoll:delayedInit()
   -- init options and comms
   self._options = self:buildMenu()
   self:RegisterChatCommand({"/RetRoll","/retroll","/ret"},self.cmdtable())
-  function RetRoll:calculateBonus(input)
-    local number = tonumber(input)
-    if number and number >= 2 and number <= 15 then
-        return number * 20
-    end
-    return 20  -- Return 20 for first week if input is invalid
-  end
-  
   self:RegisterChatCommand({"/retcsr"}, function(input)
     local bonus = RetRoll:calculateBonus(input)
     self:RollCommand(true, false,false, bonus)
