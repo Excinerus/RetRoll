@@ -2428,47 +2428,46 @@ function RetRollMSG:DBGMSG(msg, red)
 end
 
 
+
 function RetRollMSG:OnCHAT_MSG_ADDON( prefix, text, channel, sender)
-		
-	
-	if ( RetRollMSG.delayedinit) then  RetRoll:addonComms(prefix,text,channel,sender) end
-	 
-		if (channel == "RAID" or channel == "PARTY") then
-		
-		if (  string.find( prefix, RetRollMSG.prefix) ) then  
-			
-			
-				if ( sender == UnitName("player")) then 
-					--RetRollMSG:DBGMSG("sent a message" )   
-					return 
-				end
-				--RetRollMSG:DBGMSG("Recieved a message" )  
-				
-				local _ ,raidlead = RetRoll:GetRaidLeader()
-				if (UnitName("player")==raidlead) then
-				--	RetRollMSG:DBGMSG("as reaidleader" )  
-					if ( string.find( prefix, RetRollMSG.RequestHostInfoUpdate) and  RetRoll:inRaid(sender)) then
-						RetRollMSG:DBGMSG("Recieved a RequestHostInfoUpdate from " .. sender ) 
-						 RetRoll:SendHostInfoUpdate(sender)
-					end
-				else
-					--RetRollMSG:DBGMSG("as member" )  
-					
-					if (sender == raidlead) then
-					RetRollMSG:DBGMSG("from raid leader: " .. sender )  
-						if ( string.find( prefix, RetRollMSG.HostInfoUpdate)) then
-							RetRollMSG:DBGMSG("Recieved a HostInfoUpdate from " .. sender ) 
-							RetRoll:ParseHostInfo( sender, text ) 
-						end
-						if ( string.find( prefix,RetRollMSG.PugStandingUpdate)) then
-							RetRollMSG:DBGMSG("Recieved a PugStandingUpdate from " .. sender ) 
-							RetRoll:parsePugEpUpdatePacket( text )
-						end
-					end
-				end 
-				
-			end
-		end
+
+    if ( RetRollMSG.delayedinit) then 
+        RetRoll:addonComms(prefix,text,channel,sender) 
+    end
+
+    if (channel == "RAID" or channel == "PARTY") then
+        if ( string.sub(prefix , RetRollMSG.prefix) ) then 
+            local key = string.sub(prefix, 4)
+            if ( sender == UnitName("player")) then 
+                --RetRollMSG:DBGMSG("sent a message" ) 
+                return 
+            end
+            --RetRollMSG:DBGMSG("Recieved a message" ) 
+            local _ ,raidlead = RetRoll:GetRaidLeader()
+            if (UnitName("player")==raidlead) then
+                if ( key == RetRollMSG.RequestHostInfoUpdate and RetRoll:inRaid(sender)) then
+                    RetRollMSG:DBGMSG("Recieved a RequestHostInfoUpdate from " .. sender ) 
+                    RetRoll:SendHostInfoUpdate(sender)
+                    return
+                end
+            else
+                --RetRollMSG:DBGMSG("as member" ) 
+                if (sender == raidlead) then
+                    -- RetRollMSG:DBGMSG("from raid leader: " .. sender ) 
+                    if ( key == RetRollMSG.HostInfoUpdate) then
+                        RetRollMSG:DBGMSG("Recieved a HostInfoUpdate from " .. sender ) 
+                        RetRoll:ParseHostInfo( sender, text )
+                        return
+                    end
+                        if ( key == RetRollMSG.PugStandingUpdate) then
+                        RetRollMSG:DBGMSG("Recieved a PugStandingUpdate from " .. sender ) 
+                        RetRoll:parsePugEpUpdatePacket( text )
+                        return
+                    end
+                end
+            end
+        end
+    end
 end
 
 
