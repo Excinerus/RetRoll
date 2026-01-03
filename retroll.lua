@@ -2436,7 +2436,7 @@ function RetRollMSG:OnCHAT_MSG_ADDON( prefix, text, channel, sender)
     end
 
     if (channel == "RAID" or channel == "PARTY") then
-        if ( string.sub(prefix , RetRollMSG.prefix) ) then 
+        if ( string.sub(prefix ,1, 3) =  RetRollMSG.prefix ) then 
             local key = string.sub(prefix, 4)
             if ( sender == UnitName("player")) then 
                 --RetRollMSG:DBGMSG("sent a message" ) 
